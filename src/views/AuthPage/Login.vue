@@ -46,8 +46,8 @@
                 </div>
                 <div class="text-center">
                   <!-- 修改按钮宽度 -->
-                  <a-button :disabled="false" class="bg-sky-500 w-64" html-type="submit" type="primary">
-                    <div class="mx-10">注册</div>
+                  <a-button @click="router.push({name:'Register'})"  class="bg-sky-500 w-64" type="primary">
+                    <div class="mx-10" >注册</div>
                   </a-button>
                 </div>
 
