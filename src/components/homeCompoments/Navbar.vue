@@ -5,7 +5,7 @@
         <img
             alt="LOGO"
             class="w-10 h-10"
-            src="@/assets/favicon.ico"
+            src="../../assets/images/favicon.ico"
             draggable="false"
         />
         <p class="text-gray-700 font-semibold text-xl">终端笔谈</p>

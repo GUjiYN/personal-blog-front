@@ -10,8 +10,8 @@ const router = createRouter({
                 children:[
                     {
                         path:'/',
-                        name:'index',
-                        component:() => import('@/views/homePage/Main.vue')
+                        name:'main',
+                        component:() => import('@/views/homePage/homeMain.vue')
                     }
                 ]
             },
@@ -24,6 +24,19 @@ const router = createRouter({
                 path:'/register',
                 name:'Register',
                 component:() => import('@/views/AuthPage/Register.vue')
+            },
+            {
+                //博客页面相关路由
+                path:'/blog',
+                name:'Blog',
+                component:() => import('@/views/blogPage/BlogFrame.vue'),
+                children:[
+                    {
+                        path:'/blog/main',
+                        name:'blogMain',
+                        component:() => import('@/views/blogPage/BlogFrame.vue')
+                    }
+                ]
             }
     ]
 })

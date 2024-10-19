@@ -2,7 +2,7 @@
   <div class="md:flex md:h-screen items-center pb-20">
     <!-- 左边的图片部分 -->
     <div class="hidden md:block md:w-1/2 h-full">
-      <img src="@/assets/img1.jpg" alt="注册页面图片" class="w-full h-screen object-cover" />
+      <img src="../../assets/images/img1.jpg" alt="注册页面图片" class="w-full h-screen object-cover" />
     </div>
 
     <!-- 右边的登录表单部分 -->
