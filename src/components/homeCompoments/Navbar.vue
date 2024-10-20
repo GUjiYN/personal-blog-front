@@ -5,16 +5,16 @@
         <img
             alt="LOGO"
             class="w-10 h-10"
-            src="../../assets/images/favicon.ico"
+            src="@/assets/images/favicon.ico"
             draggable="false"
         />
         <p class="text-gray-700 font-semibold text-xl">终端笔谈</p>
       </a>
       <div class="col-span-3 flex justify-end ">
         <div class="col-span-2 w-32 p-2 gap-1 bg-teal-400 flex justify-center items-center rounded-lg shadow-lg">
-          <button class="text-gray-100 hover:text-spring" @click="router.replace({name:'Login'})">登录</button>
+          <button class="text-gray-100" @click="router.replace({name:'Login'})">登录</button>
           <span class="text-gray-100 mx-1">|</span>
-          <button class="text-gray-100  hover:text-spring">注册</button>
+          <button class="text-gray-100" @click="router.replace({name:'Register'})">注册</button>
         </div>
       </div>
     </div>

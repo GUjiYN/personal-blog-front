@@ -17,23 +17,24 @@
             </div>
             <div class="row-span-1">
               <a-form
+                  :v-model="loginForm"
                   :label-col="{ span: 4 }"
                   class="userLogin-form"
                   name="normal_login"
               >
                 <a-form-item>
-                  <a-input placeholder="用户名">
+                  <a-input placeholder="用户名" v-model:value="loginForm.user">
                     <template #prefix><UserOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
                   </a-input>
                 </a-form-item>
                 <a-form-item>
-                  <a-input type="password" placeholder="密码">
+                  <a-input type="password" placeholder="密码" v-model:value="loginForm.password">
                     <template #prefix><LockOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
                   </a-input>
                 </a-form-item>
                 <div class="text-center">
                   <!-- 修改按钮宽度 -->
-                  <a-button :disabled="false" class="bg-sky-500 w-64" html-type="submit" type="primary">
+                  <a-button @click="UserLogin()" :disabled="false" class="bg-sky-500 w-64" html-type="submit" type="primary">
                     <div class="mx-10">登录</div>
                   </a-button>
                 </div>
@@ -68,61 +69,24 @@ import {onMounted, reactive, ref} from 'vue';
 import {message} from "ant-design-vue";
 import {KeyOutlined, UserOutlined, LockOutlined} from "@ant-design/icons-vue";
 import router from "@/router/index.js";
-/*import {userLoginVO} from "@/assets/js/VoModel.js";
-import {userLoginApi} from "@/api/AuthApi.js";
-import {userCurrentDO} from "@/assets/js/DoModel.js";
-import {getUserCurrentApi} from "@/api/UserApi.js";*/
+import {loginVO} from "@/assets/js/VoModel.js";
+import {loginApi} from "@/api/AuthApi.js";
 
-/*const loginForm = reactive(userLoginVO);
-const getUserCurrent = ref(userCurrentDO)
+const loginForm = reactive({loginVO})
 
-/!**
- * 用户进行登陆操作
- * @return {Promise<void>}
- * @constructor
- *!/
-async function consoleUserLogin() {
-  if (loginForm.user === '' && loginForm.password === '') {
+async function UserLogin() {
+  if (loginForm.user=== '' && loginForm.password === '') {
     message.warn("账户密码不能为空")
     return;
   }
-  const getReturnData = await userLoginApi(loginForm);
+  const getReturnData = await loginApi(loginForm);
   switch (getReturnData.output) {
     case "Success":
       localStorage.setItem("AuthorizationToken", "Bearer " + getReturnData.data.token);
       localStorage.setItem("X-Auth-UUID", getReturnData.data.user.uuid);
-      if (getReturnData.data.recover) {
-        message.success('账户 ' + getReturnData.data.user.userName + ' 用户已取消注销')
-      } else {
-        message.success('你好 ' + getReturnData.data.user.userName + ' 用户')
+      message.success('你好 ' + getReturnData.data.user.username + ' 用户')
+      await router.push({name: 'Blog'});
       }
-      setTimeout(async () => {
-        await router.replace({ name: 'Dashboard', replace: true })
-      }, 1000);
-  }
 }
 
-/!**
- * 检查用户是否登陆
- * @return {Promise<void>}
- *!/
-async function isUserLogin() {
-  switch (getUserCurrent.value.output) {
-    case "Success":
-      await router.replace({ name: 'Dashboard', replace: true })
-      break;
-    default:
-      if (localStorage.getItem("AuthorizationToken") !== undefined && localStorage.getItem("X-Auth-UUID") !== null) {
-        message.warn("您的登陆已失效");
-        console.warn("[VIEW] Login[isUserLogin]: 登陆失败，失败原因: " + getUserCurrent.output);
-        localStorage.removeItem("AuthorizationToken");
-        localStorage.removeItem("X-Auth-UUID");
-      }
-  }
-}
-
-onMounted(async _ => {
-  getUserCurrent.value = await getUserCurrentApi();
-  await isUserLogin();
-})*/
 </script>
