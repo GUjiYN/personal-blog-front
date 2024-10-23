@@ -3,7 +3,7 @@ const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes:
         [
-            {   //首页相关路由
+            /*{   //首页相关路由
                 path:'/',
                 name: 'Home',
                 component:() => import('@/views/homePage/HomeFrame.vue'),
@@ -14,7 +14,7 @@ const router = createRouter({
                         component:() => import('@/views/homePage/homeMain.vue')
                     }
                 ]
-            },
+            },*/
             {   //登录路由
                 path:'/login',
                 name:'Login',
@@ -27,16 +27,9 @@ const router = createRouter({
             },
             {
                 //博客页面相关路由
-                path:'/blog',
+                path:'/',
                 name:'Blog',
                 component:() => import('@/views/blogPage/BlogFrame.vue'),
-                children:[
-                    {
-                        path:'/blog/main',
-                        name:'blogMain',
-                        component:() => import('@/views/blogPage/BlogFrame.vue')
-                    }
-                ]
             }
     ]
 })

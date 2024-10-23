@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex justify-center  min-h-screen bg-gray-900 text-white bg-cover bg-[url('@/assets/images/img3.jpg')]">
+  <div class="relative flex justify-center  min-h-screen bg-gray-900 text-white bg-cover bg-[url('@/assets/images/img5.jpg')]">
     <div class="absolute top-0 left-0 right-0 bottom-0 bg-black opacity-35"></div>
     <div class="relative">
       <div class="grid grid-cols-12 container p-48 space-x-10">
@@ -21,7 +21,7 @@
         </div>
         <div class="col-span-3 p-4 bg-gray-900">
           <div class="mb-6 text-center">
-            <img class="w-24 h-24 rounded-full mx-auto mb-4" src="" alt="Profile Image" />
+            <img class="w-24 h-24 rounded-full mx-auto mb-4" src="@/assets/images/img4.jpg" alt="Profile Image" />
             <h2 class="text-xl font-semibold">用户名</h2>
             <p class="text-sm text-gray-400">只为在茫茫人海中有自己的小天空！</p>
             <div class="mt-4 flex justify-center space-x-3">
