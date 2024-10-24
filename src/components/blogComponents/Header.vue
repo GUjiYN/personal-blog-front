@@ -1,6 +1,6 @@
 <template>
   <div class="relative bg-cover h-screen bg-[url('@/assets/images/img2.jpg')]">
-    <div class="absolute top-0 left-0 right-0 bottom-0 bg-black opacity-35"></div>
+    <div class="absolute top-0 left-0 right-0 bottom-0 bg-black opacity-20"></div>
     <div class="relative">
       <nav :class="['border-gray-200 py-3 px-5 fixed top-0 left-0 right-0 z-50 flex justify-center transition-all ' +
             'duration-300', isScrolled ? 'bg-black/70' : 'bg-transparent']"
@@ -13,18 +13,34 @@
             </a>
           </div>
           <div class="col-span-4 flex space-x-6 justify-end text-md">
-            <button @click="toggleSearch" class="flex gap-1 items-center space-x-1 text-gray-200 hover:text-white">
+            <a href="/" class="flex gap-1 items-center space-x-1 text-gray-200 hover:text-white">
               <HomeOutlined />
               <span>首页</span>
-            </button>
+            </a>
             <button @click="toggleSearch" class="flex gap-1 items-center space-x-1 text-gray-200 hover:text-white">
               <SearchOutlined />
               <span>搜索</span>
             </button>
-            <button @click="toggleSearch" class="flex gap-1 items-center space-x-1 text-gray-200 hover:text-white">
+            <button @click="router.push({name:'Friend'})" class="flex gap-1 items-center space-x-1 text-gray-200 hover:text-white">
               <LinkOutlined />
               <span>友链</span>
             </button>
+            <a-dropdown>
+              <button @click="toggleSearch" class="flex gap-1 items-center space-x-1 text-gray-200 hover:text-white">
+                <svg class="w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z"/>
+                </svg>
+                <span>归档</span>
+                <DownOutlined />
+              </button>
+              <template class="bg-black hover:text-white" #overlay>
+                <a-menu >
+                  <a-menu-item >
+                    <button >标签</button>
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
             <button @click="toggleSearch" class="flex gap-1 items-center space-x-1 text-gray-200 hover:text-white">
               <MenuOutlined />
               <span>关于我</span>
@@ -65,7 +81,8 @@
 
 <script setup>
 import {ref, onMounted, onUnmounted} from 'vue';
-import {SearchOutlined, LinkOutlined, MenuOutlined, HomeOutlined} from "@ant-design/icons-vue";
+import {SearchOutlined, LinkOutlined, MenuOutlined, HomeOutlined, DownOutlined} from "@ant-design/icons-vue";
+import router from "@/router/index.js";
 
 // 搜索框显示状态
 const isSearchVisible = ref(false);

@@ -1,10 +1,10 @@
 <template>
-  <Header/>
+  <Header />
   <Content/>
   <Footer/>
 </template>
 <script setup lang="ts">
-import Header from "@/components/blogCompoments/Header.vue";
-import Content from "@/components/blogCompoments/Content.vue";
-import Footer from "@/components/blogCompoments/Footer.vue";
+import Header from "@/components/blogComponents/Header.vue";
+import Content from "@/components/blogComponents/Content.vue";
+import Footer from "@/components/blogComponents/Footer.vue";
 </script>
