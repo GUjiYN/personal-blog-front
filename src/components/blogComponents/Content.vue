@@ -1,44 +1,64 @@
+<script setup>
+import {HomeOutlined, UserOutlined, TagOutlined, GithubOutlined, QqOutlined} from "@ant-design/icons-vue";
+import {onMounted, ref} from 'vue';
+const current = ref(2);
+
+import {getArticleListApi} from "@/api/ArticleApi.js";
+import {articleListDO} from "@/assets/js/DoModel.js";
+import {articleListVO} from "@/assets/js/VoModel.js";
+
+const getArticleList = ref(articleListDO);
+const articleList = ref(articleListVO);
+
+onMounted(async () => {
+  try {
+    const result = await getArticleListApi(articleList.value);
+    console.log(result); // 检查数据
+    getArticleList.value = result.data.records; // 确保赋值为 records 数组
+  } catch (error) {
+    console.error("数据加载出错：", error);
+  }
+});
+</script>
+
 <template>
   <div class="relative flex justify-center min-h-screen text-white bg-cover bg-fixed bg-[url('@/assets/images/img5.jpg')]">
     <div class="relative">
-      <div class="grid grid-cols-12 container p-48 space-x-10">
+      <div class="grid grid-cols-12 container p-48 gap-6">
         <div class="col-span-9">
           <div class="grid grid-cols-1 gap-6">
-            <!-- 模拟循环的卡片生成 -->
-            <div v-for="(card, index) in cards" :key="index" class="bg-gray-100 rounded-lg h-64 flex">
-              <!-- 判断奇偶，决定图片和文字的位置 -->
-              <div v-if="index % 2 === 0" class="flex w-full text-gray-700 overflow-hidden rounded-l-lg">
-                <img
-                    src="@/assets/images/img6.jpg"
-                    alt="Article Image"
-                    class="w-2/5 h-full object-cover rounded-l-lg transform transition-transform duration-1000
-                    hover:scale-105"
-                />
-                <div class="flex-1 flex items-center justify-center">
-                  <div class="text-left">
-                    <h2 class="text-2xl font-bold">{{ card.title }}</h2>
-                    <p class="">发布时间：{{ card.date }}</p>
-                    <p class="">{{ card.description }}</p>
-                  </div>
+            <div v-for="(item, index) in getArticleList" :key="index" class="bg-gray-100 rounded-lg h-64 flex">
+              <div v-if="index % 2 === 0" class="flex w-full text-gray-700 rounded-l-lg justify-start items-center">
+                <div class="w-96 h-full object-cover rounded-l-lg overflow-hidden">
+                  <img
+                      src="@/assets/images/img6.jpg"
+                      alt="Article Image"
+                      class="w-96 h-full object-cover rounded-l-lg transform transition-transform duration-500 hover:scale-110"
+                  />
+                </div>
+                <div class="flex-1 flex-col p-8">
+                    <h2 class="text-2xl font-bold">{{ item.title }}</h2>
+                  <p class="text-sky-700/85 font-semibold">发布时间：{{ item.createdAt.split('T')[0] }}</p>
+                    <p class="">{{ item.description }}</p>
                 </div>
               </div>
-              <div v-else class="flex w-full text-gray-700 overflow-hidden rounded-r-lg">
-                <div class="flex-1 flex items-center justify-center mr-8">
-                  <div class="text-left">
-                    <h2 class="text-2xl font-bold">{{ card.title }}</h2>
-                    <p class="">发布时间：{{ card.date }}</p>
-                    <p class="">{{ card.description }}</p>
-                  </div>
+              <div v-else class="flex w-full text-gray-700 rounded-r-lg justify-end items-center">
+                <div class="flex-1 flex-col p-8">
+                  <h2 class="text-2xl font-bold">{{ item.title }}</h2>
+                  <p class="text-sky-700/85 font-semibold">发布时间：{{ item.createdAt.split('T')[0] }}</p>
+                  <p class="">{{ item.description }}</p>
                 </div>
+                <div class="w-96 h-full object-cover rounded-r-lg overflow-hidden">
                 <img
                     src="@/assets/images/img6.jpg"
                     alt="Article Image"
-                    class="w-2/5 h-full object-cover rounded-r-lg transform transition-transform duration-1000
-                    hover:scale-105"
+                    class="w-96 h-full object-cover rounded-r-lg transform transition-transform duration-500 hover:scale-110"
                 />
+                </div>
               </div>
             </div>
-            <div class="mt-5 flex items-center justify-center">
+
+            <div class="mt-6 flex items-center justify-center">
               <ul class="flex items-center -space-x-px h-10 text-base">
                 <li>
                   <a href="#" class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500
@@ -107,7 +127,7 @@
             </div>
           </div>
         </div>
-        <div class="col-span-3 flex flex-col space-y-4">
+        <div class="col-span-3 flex flex-col gap-6">
           <div class="bg-white p-4 rounded-lg">
             <div class="mb-6 text-center rounded-lg">
               <img class="w-24 h-24 rounded-full mx-auto mb-4" src="@/assets/images/img4.jpg" alt="Profile Image" />
@@ -122,6 +142,23 @@
                   <UserOutlined />
                   <span class="text-gray-700">关于我的一些事?</span>
                 </button>
+              </div>
+              <div class="mt-4 flex justify-center space-x-6">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <path fill-rule="evenodd" d="M12.006 2a9.847 9.847 0 0 0-6.484 2.44 10.32 10.32 0 0 0-3.393 6.17 10.48 10.48 0 0 0 1.317 6.955 10.045 10.045 0 0 0 5.4 4.418c.504.095.683-.223.683-.494 0-.245-.01-1.052-.014-1.908-2.78.62-3.366-1.21-3.366-1.21a2.711 2.711 0 0 0-1.11-1.5c-.907-.637.07-.621.07-.621.317.044.62.163.885.346.266.183.487.426.647.71.135.253.318.476.538.655a2.079 2.079 0 0 0 2.37.196c.045-.52.27-1.006.635-1.37-2.219-.259-4.554-1.138-4.554-5.07a4.022 4.022 0 0 1 1.031-2.75 3.77 3.77 0 0 1 .096-2.713s.839-.275 2.749 1.05a9.26 9.26 0 0 1 5.004 0c1.906-1.325 2.74-1.05 2.74-1.05.37.858.406 1.828.101 2.713a4.017 4.017 0 0 1 1.029 2.75c0 3.939-2.339 4.805-4.564 5.058a2.471 2.471 0 0 1 .679 1.897c0 1.372-.012 2.477-.012 2.814 0 .272.18.592.687.492a10.05 10.05 0 0 0 5.388-4.421 10.473 10.473 0 0 0 1.313-6.948 10.32 10.32 0 0 0-3.39-6.165A9.847 9.847 0 0 0 12.007 2Z" clip-rule="evenodd"/>
+                </svg>
+
+                <QqOutlined  class="text-gray-800 text-2xl"/>
+                <div>
+                  <svg class="w-6 h-6 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                       width="24" height="24" fill="none" viewBox="0 0 24 24"
+                  >
+                    <path stroke="currentColor" stroke-linejoin="round" stroke-width="2"
+                          d="M20 16v-4a8 8 0 1 0-16 0v4m16 0v2a2 2 0 0 1-2 2h-2v-6h2a2 2 0 0 1 2 2ZM4 16v2a2 2 0 0 0
+                          2 2h2v-6H6a2 2 0 0 0-2 2Z"
+                    />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
@@ -148,41 +185,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import {HomeOutlined, UserOutlined, TagOutlined} from "@ant-design/icons-vue";
-import { ref } from 'vue';
-const current = ref(2);
-// 假设有动态的数据卡片展示
-const cards = [
-  {
-    //image: '@/assets/images/img5.jpg',
-    title: '关于我「新人快点~」',
-    date: '2024-08-24',
-    description: '这中的暂时不为如何，只为在忙乱海中有自己的小天空~...',
-  },
-  {
-   // image: '@/assets/images/img6.jpg',
-    title: '第二个卡片',
-    date: '2024-09-12',
-    description: '这中的暂时不为如何，只为在忙乱海中有自己的小天空~...',
-  },
-  {
-    // image: '@/assets/images/img6.jpg',
-    title: '第二个卡片',
-    date: '2024-09-12',
-    description: '这中的暂时不为如何，只为在忙乱海中有自己的小天空~...',
-  },
-  {
-    // image: '@/assets/images/img6.jpg',
-    title: '第二个卡片',
-    date: '2024-09-12',
-    description: '这中的暂时不为如何，只为在忙乱海中有自己的小天空~...',
-  },
-  // 你可以继续添加更多的卡片数据
-];
-</script>
-
-<style scoped>
-/* 添加任何额外的样式 */
-</style>

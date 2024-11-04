@@ -23,3 +23,27 @@ export let loginDO = {
     },
     token: '',
 }
+
+export let articleListDO = {
+    baseResponse,
+    data: {
+        aid:'',
+        authid:'',
+        title:'',
+        description:'',
+        tags: '',
+        image:'',
+        createdAt:'',
+        updatedAt:'',
+    }
+}
+
+export let addArticle = {
+    baseResponse,
+    data: {
+        title:'',
+        description:'',
+        tags:'',
+        image:'',
+    }
+}
