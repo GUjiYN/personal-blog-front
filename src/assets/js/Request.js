@@ -63,6 +63,19 @@ const GetArticleList = (data) => {
 }
 
 
+const SearchArticle = (data) => {
+    return axios({
+        url: api + "/article/search",
+        method: "get",
+        params: data,
+        headers: {
+            'content-type': 'application/json;charset=utf-8',
+            'X-Timestamp': new Date().getTime()
+        }
+    })
+}
+
+
 /**
  * 创建文章
  *
@@ -117,6 +130,7 @@ export default {
     Register,
     Login,
     GetArticleList,
+    SearchArticle,
     CreateArticle,
     UpdateArticle,
     DeleteArticle

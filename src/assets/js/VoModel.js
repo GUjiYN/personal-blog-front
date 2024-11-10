@@ -14,7 +14,13 @@ export let articleListVO = {
     size:'',
 }
 
-export let addArticle = {
+export let searchArticleVO = {
+    keyword: '',
+    page: '',
+    size: '',
+}
+
+export let addArticleVO = {
     title:'',
     description:'',
     tags:'',
