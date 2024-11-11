@@ -121,7 +121,7 @@ onUnmounted(() => {
           <div class="col-span-8 space-x-2">
             <a :class="['flex items-center gap-2', isScrolled ? 'text-gray-700' : 'text-gray-200']" href="/">
               <img alt="LOGO" class="w-10 h-10 rounded-lg" src="@/assets/images/favicon.ico" />
-              <span class="font-semibold text-xl hover:text-gray-700">终端笔谈</span>
+              <span class="font-semibold text-xl text-gray-200 hover:text-white">终端笔谈</span>
             </a>
           </div>
           <div class="col-span-4 flex space-x-6 justify-end text-md">
@@ -148,7 +148,7 @@ onUnmounted(() => {
               <template class="bg-black hover:text-white" #overlay>
                 <a-menu>
                   <a-menu-item>
-                    <button>标签</button>
+                    <button @click="router.push({name:'Tag'})">标签</button>
                   </a-menu-item>
                 </a-menu>
               </template>

@@ -35,6 +35,12 @@ const router = createRouter({
                 path:'/friend',
                 name:'Friend',
                 component:() => import('@/views/FriendPage/FriendFrame.vue')
+            },
+            {
+                //标签页相关路由
+                path:'/tag',
+                name:'Tag',
+                component:() => import('@/views/TagPage/TagFrame.vue')
             }
     ]
 })

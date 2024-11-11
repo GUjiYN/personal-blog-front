@@ -5,9 +5,6 @@ import {tagListDO} from "@/assets/js/DoModel.js";
 import {tagListVO} from "@/assets/js/VoModel.js";
 import {getTagListApi} from "@/api/TagApi.js";
 
-const props = defineProps({
-  articles: Array // 接收来自父组件的查询结果数据
-});
 
 const getTagList = ref(tagListDO);
 const tagList = ref(tagListVO);
@@ -19,116 +16,53 @@ onMounted(async () => {
     const result = await getTagListApi(tagList.value);
     console.log(result); // 检查数据
     getTagList.value = result.data.records; // 确保赋值为 records 数组
+    // 初始化每个标签的 hoverColors
+    hoverColors.value = getTagList.value.map(() => getRandomColor());
+
   } catch (error) {
     console.error("数据加载出错：", error);
   }
 });
+// 预设一组固定的颜色
+const presetColors = [
+  "#FF5733", "#05c777", "#3357FF", "#F333FF", "#FF33A6",
+  "#4e87ea", "#74abe3", "#1b303a", "rgba(244,140,183,0.99)", "#FFBD33"
+];
 
+// 生成随机颜色
+const getRandomColor = () => {
+  return presetColors[Math.floor(Math.random() * presetColors.length)];
+};
 </script>
-
+<style scoped>
+.tag {
+  display: inline-block;
+  margin: 0.2rem;
+  padding: 0.3rem 0.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 5px;
+}
+</style>
 <template>
   <div class="relative flex justify-center min-h-screen text-white bg-cover bg-fixed bg-[url('@/assets/images/img5.jpg')]">
     <div class="relative">
       <div class="grid grid-cols-12 container p-48 gap-6">
         <div class="col-span-9">
           <div class="grid grid-cols-1 gap-6">
-            <div v-for="(item, index) in articles" :key="index" class="bg-gray-100 rounded-lg h-64 flex">
-              <div v-if="index % 2 === 0" class="flex w-full text-gray-700 rounded-l-lg justify-start items-center">
-                <div class="w-96 h-full object-cover rounded-l-lg overflow-hidden">
-                  <img
-                      alt="Article Image"
-                      class="w-96 h-full object-cover rounded-l-lg transform transition-transform duration-500 hover:scale-110"
-                      src="@/assets/images/img6.jpg"
-                  />
-                </div>
-                <div class="flex-1 flex-col p-8">
-                  <h2 class="text-2xl font-bold">{{ item.title }}</h2>
-                  <p class="text-sky-700/85 font-semibold">发布时间：{{ item.createdAt }}</p>
-                  <p class="">{{ item.description }}</p>
-                </div>
+            <div class="bg-gray-100 rounded-lg p-4">
+              <div class="grid grid-cols-9 gap-y-1"> <!-- 这里设置了网格布局 -->
+                <button
+                    v-for="(tag, index) in getTagList"
+                    :key="index"
+                    :style="{ color: presetColors[index % presetColors.length] }"
+                    @mouseover="(event) => event.target.style.color = hoverColors[index]"
+                    @mouseleave="(event) => event.target.style.color = presetColors[index % presetColors.length]"
+                    class="font-bold p-1 rounded transition-transform transform hover:scale-110"
+                >
+                  {{ tag.tname }}
+                </button>
               </div>
-              <div v-else class="flex w-full text-gray-700 rounded-r-lg justify-end items-center">
-                <div class="flex-1 flex-col p-8">
-                  <h2 class="text-2xl font-bold">{{ item.title }}</h2>
-                  <p class="text-sky-700/85 font-semibold">发布时间：{{ item.createdAt }}</p>
-                  <p class="">{{ item.description }}</p>
-                </div>
-                <div class="w-96 h-full object-cover rounded-r-lg overflow-hidden">
-                  <img
-                      alt="Article Image"
-                      class="w-96 h-full object-cover rounded-r-lg transform transition-transform duration-500 hover:scale-110"
-                      src="@/assets/images/img6.jpg"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-6 flex items-center justify-center">
-              <ul class="flex items-center -space-x-px h-10 text-base">
-                <li>
-                  <a class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500
-                    bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700" href="#"
-                  >
-                    <span class="sr-only">Previous</span>
-                    <svg aria-hidden="true" class="w-3 h-3 rtl:rotate-180" fill="none"
-                         viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M5 1 1 5l4 4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="2"
-                      />
-                    </svg>
-                  </a>
-                </li>
-                <li>
-                  <a class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white
-                    border border-gray-300 hover:bg-gray-100 hover:text-gray-700" href="#"
-                  >
-                    1
-                  </a>
-                </li>
-                <li>
-                  <a class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white
-                    border border-gray-300 hover:bg-gray-100 hover:text-gray-700" href="#"
-                  >
-                    2
-                  </a>
-                </li>
-                <li>
-                  <a aria-current="page" class="z-10 flex items-center justify-center px-4 h-10 leading-tight
-                    text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700" href="#"
-                  >
-                    3
-                  </a>
-                </li>
-                <li>
-                  <a class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white
-                    border border-gray-300 hover:bg-gray-100 hover:text-gray-700" href="#"
-                  >
-                    4
-                  </a>
-                </li>
-                <li>
-                  <a class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white
-                    border border-gray-300 hover:bg-gray-100 hover:text-gray-700" href="#"
-                  >
-                    5
-                  </a>
-                </li>
-                <li>
-                  <a class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white
-                    border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700" href="#"
-                  >
-                    <span class="sr-only">Next</span>
-                    <svg aria-hidden="true" class="w-3 h-3 rtl:rotate-180" fill="none"
-                         viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="m1 9 4-4-4-4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="2"
-                      />
-                    </svg>
-                  </a>
-                </li>
-              </ul>
             </div>
           </div>
         </div>

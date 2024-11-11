@@ -1,3 +1,5 @@
+import {baseResponse} from "@/assets/js/DoModel.js";
+
 export let registerVO = {
     username: '',
     email: '',
@@ -25,4 +27,25 @@ export let addArticleVO = {
     description:'',
     tags:'',
     image:'',
+}
+
+export let tagListVO = {
+    page:'',
+    size:'',
+}
+
+
+export let commentListVO = {
+    page:'',
+    size:'',
+}
+
+export let addCommentVO = {
+    aid:'',
+    cname:'',
+    cdesc:'',
+}
+
+export let deleteCommentVO = {
+    cid:''
 }

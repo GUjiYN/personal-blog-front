@@ -62,7 +62,12 @@ const GetArticleList = (data) => {
     })
 }
 
-
+/**
+ * 查询文章
+ * @param data
+ * @return {*}
+ * @constructor
+ */
 const SearchArticle = (data) => {
     return axios({
         url: api + "/article/search",
@@ -78,7 +83,9 @@ const SearchArticle = (data) => {
 
 /**
  * 创建文章
- *
+ * @param data
+ * @return {*}
+ * @constructor
  */
 const CreateArticle = (data) => {
     return axios({
@@ -94,6 +101,9 @@ const CreateArticle = (data) => {
 
 /**
  * 更新文章
+ * @param data
+ * @return {*}
+ * @constructor
  */
 const UpdateArticle = (data) => {
     return axios({
@@ -110,6 +120,9 @@ const UpdateArticle = (data) => {
 
 /**
  * 删除文章
+ * @param aid
+ * @return {*}
+ * @constructor
  */
 const DeleteArticle = (aid) => {
     return axios({
@@ -123,6 +136,58 @@ const DeleteArticle = (aid) => {
 }
 
 
+/**
+ * 获取评论列表
+ * @param data
+ * @return {*}
+ * @constructor
+ */
+const GetCommentList = (data) => {
+    return axios({
+        url: api + "/comment/list",
+        method: "get",
+        params: data,
+        headers: {
+            'content-type': 'application/json;charset=utf-8',
+            'X-Timestamp': new Date().getTime()
+        }
+    })
+}
+
+/**
+ * 删除评论
+ * @param cid
+ * @return {*}
+ * @constructor
+ */
+const DeleteComment = (cid) => {
+    return axios({
+        url: api + "/comment/delete" + cid,
+        method: "delete",
+        headers: {
+            'content-type': 'application/json;charset=utf-8',
+            'X-Timestamp': new Date().getTime()
+        }
+    })
+}
+
+/**
+ * 获取标签列表
+ * @param data
+ * @return {*}
+ * @constructor
+ */
+const GetTagList = (data) => {
+    return axios({
+        url: api + "/tag/list",
+        method: "get",
+        params: data,
+        headers: {
+            'content-type': 'application/json;charset=utf-8',
+            'X-Timestamp': new Date().getTime()
+        }
+    })
+}
 
 
 
@@ -133,5 +198,8 @@ export default {
     SearchArticle,
     CreateArticle,
     UpdateArticle,
-    DeleteArticle
+    DeleteArticle,
+    GetCommentList,
+    DeleteComment,
+    GetTagList
 }

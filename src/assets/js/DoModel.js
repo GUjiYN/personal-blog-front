@@ -63,3 +63,39 @@ export let addArticleDO = {
         image:'',
     }
 }
+
+
+export let tagListDO = {
+    baseResponse,
+    data: {
+        tid:'',
+        tname:''
+    }
+}
+
+export let commentListDO = {
+    baseResponse,
+    data: {
+        cid:'' ,
+        cname:'',
+        cdesc:'',
+        createdAt:'',
+        reply:''
+    }
+}
+
+export let addCommentDO = {
+    baseResponse,
+    data: {
+        cname:'',
+        cdesc:'',
+        createdAt:'',
+    }
+}
+
+export let deleteCommentDO = {
+    baseResponse,
+    data: {
+
+    }
+}
