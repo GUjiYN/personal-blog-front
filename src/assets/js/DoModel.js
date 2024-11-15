@@ -101,6 +101,7 @@ export let commentListDO = {
 export let addCommentDO = {
     baseResponse,
     data: {
+        aid:'',
         cname:'',
         cdesc:'',
         createdAt:'',

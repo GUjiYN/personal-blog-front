@@ -13,15 +13,26 @@ import {marked} from 'marked';
 
 const getTagList = ref(tagListDO);
 const tagList = ref(tagListVO);
-const getArticleDetails = ref(null); // 默认值设为 null 方便 v-if 判断
+const getArticleDetails = ref(null);
 const route = useRoute();
-const aid = route.params.aid; // aid 可以直接解构
+const aid = route.params.aid;
 const getCommentList = ref(commentListDO);
 const commentList = ref(commentListVO);
-const getAddCommentVO = ref(addCommentVO);
 const getAddCommentDO = ref(addCommentDO);
-commentListVO.aid = route.params.aid; // 设置文章 ID
+const getAddCommentVO = ref({
+  aid: route.params.aid, // 文章ID
+  cname: '',                     // 评论者名称
+  cdesc: ''                      // 评论内容
+});
 
+commentListVO.aid = route.params.aid;
+
+
+/**
+ * 获取文章详情
+ * 获取标签列表
+ * 获取评论列表
+ */
 onMounted(async () => {
   try {
     const result1 = await getArticleDetailsApi(aid);
@@ -38,19 +49,60 @@ onMounted(async () => {
   }
 });
 
-
 /**
  * 发布评论
  */
 const AddComment = async () => {
-  // 数据准备
-  const getReturnData = await addCommentApi(getAddCommentVO);
-  switch (getReturnData.output) {
-    case "Success":
-      getAddCommentDO.value = await addCommentApi('all', getAddCommentVO);
-      message.success("操作成功");
+  console.log('提交的评论数据：', getAddCommentVO.value);
+
+  try {
+    // 发送评论请求
+    const result = await addCommentApi(getAddCommentVO.value);
+
+    if (result.output === "Success") {
+      message.success("评论发布成功");
+
+      // 将新评论直接添加到评论列表
+      const newComment = {
+        aid: getAddCommentVO.value.aid,
+        cname: getAddCommentVO.value.cname,
+        cdesc: getAddCommentVO.value.cdesc,
+        createdAt: new Date().toISOString() // 设置评论的时间戳
+      };
+
+      // 将新评论插入到评论列表的开头
+      getCommentList.value.unshift(newComment);
+
+      // 清空输入框的内容
+      getAddCommentVO.value.cname = '';
+      getAddCommentVO.value.cdesc = '';
+    }
+  } catch (error) {
+    console.error("评论发布失败：", error);
+    message.error("评论发布失败，请稍后重试！");
   }
-}
+};
+
+/**
+ * 时间格式化
+ * @param dateString
+ * @return {string}
+ */
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false // 使用 24 小时制
+  });
+};
+
+
+
 
 
 // 使用 computed 属性将 Markdown 转换为 HTML
@@ -112,7 +164,7 @@ const dislike = () => {
                       label="昵称"
                       name="username"
                   >
-                    <a-input v-model:value="getAddCommentDO.cname" class="bg-gray-300 border border-gray-300 rounded-lg"/>
+                    <a-input v-model:value="getAddCommentVO.cname" class="bg-gray-300 border border-gray-300 rounded-lg"/>
                   </a-form-item>
 
                   <a-form-item
@@ -124,24 +176,19 @@ const dislike = () => {
                 </a-form>
                 <div>
                   <a-textarea
-                      v-model:value="getAddCommentDO.cdesc"
+                      v-model:value="getAddCommentVO.cdesc"
                       :rows="4"
                       placeholder="欢迎评论"
                       class="w-full bg-gray-300 text-gray-200 border border-gray-300 rounded-md p-3
                       focus:outline-none focus:border-blue-500"
                   />
                 </div>
-                <!-- Footer Section: Icons, Character Count, and Buttons -->
                 <div class="flex justify-between items-center">
-                  <!-- Left: Icons Section -->
                   <div class="flex space-x-3 text-gray-400 text-lg">
-                    <!-- Placeholder icons; replace with actual icons as needed -->
                     <span class="cursor-pointer hover:text-gray-200">M↓</span>
                     <span class="cursor-pointer hover:text-gray-200">GIF</span>
                     <span class="cursor-pointer hover:text-gray-200">IMG</span>
                   </div>
-
-                  <!-- Right: Character Count and Buttons -->
                   <div class="flex items-center space-x-3">
                     <span class="text-gray-500"> 字</span>
                     <button  class="bg-gray-300 py-2 px-4 rounded-lg text-gray-500 hover:bg-gray-400">登录</button>
@@ -190,6 +237,11 @@ const dislike = () => {
                       <p class="text-sm text-gray-500">
                         {{item.cdesc}}
                       </p>
+                    </template>
+                    <template #datetime>
+                      <a-tooltip >
+                        <span>{{ formatDate(item.createdAt) }}</span>
+                      </a-tooltip>
                     </template>
                   </a-comment>
                   <p v-else class="text-gray-500">暂无评论</p>
