@@ -41,6 +41,12 @@ const router = createRouter({
                 path:'/tag',
                 name:'Tag',
                 component:() => import('@/views/TagPage/TagFrame.vue')
+            },
+            {
+                //文章详情页面相关路由
+                path: '/article/:aid',
+                name: 'ArticleDetail',
+                component:() => import('@/views/ArticlePage/ArticleFrame.vue'),
             }
     ]
 })

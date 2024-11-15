@@ -62,6 +62,25 @@ const GetArticleList = (data) => {
     })
 }
 
+
+/**
+ * 获取文章详细信息
+ * @param aid
+ * @return {*}
+ * @constructor
+ */
+const GetArticleDetails = (aid) => {
+    return axios({
+        url: api + "/article/" + aid,
+        method: "get",
+        headers: {
+            'content-type': 'application/json;charset=utf-8',
+            'X-Timestamp': new Date().getTime()
+        }
+    })
+}
+
+
 /**
  * 查询文章
  * @param data
@@ -139,6 +158,7 @@ const DeleteArticle = (aid) => {
 /**
  * 获取评论列表
  * @param data
+ * @param aid
  * @return {*}
  * @constructor
  */
@@ -147,6 +167,18 @@ const GetCommentList = (data) => {
         url: api + "/comment/list",
         method: "get",
         params: data,
+        headers: {
+            'content-type': 'application/json;charset=utf-8',
+            'X-Timestamp': new Date().getTime()
+        }
+    })
+}
+
+const AddComment = (data) => {
+    return axios({
+        url: api + "/comment/add",
+        method: "post",
+        data: data,
         headers: {
             'content-type': 'application/json;charset=utf-8',
             'X-Timestamp': new Date().getTime()
@@ -200,6 +232,8 @@ export default {
     UpdateArticle,
     DeleteArticle,
     GetCommentList,
+    AddComment,
     DeleteComment,
-    GetTagList
+    GetTagList,
+    GetArticleDetails
 }

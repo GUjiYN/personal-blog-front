@@ -16,6 +16,10 @@ export let articleListVO = {
     size:'',
 }
 
+export let articleDetailsVO = {
+    aid:'',
+}
+
 export let searchArticleVO = {
     keyword: '',
     page: '',
@@ -38,6 +42,7 @@ export let tagListVO = {
 export let commentListVO = {
     page:'',
     size:'',
+    aid:''
 }
 
 export let addCommentVO = {

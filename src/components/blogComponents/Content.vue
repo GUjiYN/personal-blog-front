@@ -1,9 +1,10 @@
 <script setup>
-import {QqOutlined, TagOutlined, UserOutlined} from "@ant-design/icons-vue";
+import {QqOutlined, TagOutlined, UserOutlined,CalendarOutlined} from "@ant-design/icons-vue";
 import {onMounted, ref} from 'vue';
 import {tagListDO} from "@/assets/js/DoModel.js";
 import {tagListVO} from "@/assets/js/VoModel.js";
 import {getTagListApi} from "@/api/TagApi.js";
+import router from "@/router/index.js";
 
 const props = defineProps({
   articles: Array // 接收来自父组件的查询结果数据
@@ -13,6 +14,21 @@ const getTagList = ref(tagListDO);
 const tagList = ref(tagListVO);
 // 用于存储每个标签悬浮时的随机颜色
 const hoverColors = ref([]);
+// 跳转到文章详情页
+const goToDetail = (item) => {
+  console.log(item.aid);
+  router.push('/article/' + item.aid)
+};
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+};
+
 
 onMounted(async () => {
   try {
@@ -28,6 +44,7 @@ onMounted(async () => {
 
 <template>
   <div class="relative flex justify-center min-h-screen text-white bg-cover bg-fixed bg-[url('@/assets/images/img5.jpg')]">
+    <div class="absolute top-0 left-0 right-0 bottom-0 bg-black opacity-20"></div>
     <div class="relative">
       <div class="grid grid-cols-12 container p-48 gap-6">
         <div class="col-span-9">
@@ -42,15 +59,30 @@ onMounted(async () => {
                   />
                 </div>
                 <div class="flex-1 flex-col p-8">
-                  <h2 class="text-2xl font-bold">{{ item.title }}</h2>
-                  <p class="text-sky-700/85 font-semibold">发布时间：{{ item.createdAt }}</p>
+                  <button class="text-2xl font-bold" @click="goToDetail(item)">{{ item.title }}</button>
+                  <div class="flex gap-1">
+                    <svg class="w-5 h-5 text-sky-700/85" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"/>
+                    </svg>
+                    <p class="text-sky-700/85 font-semibold text-sm mb-1">
+                      发表于{{ formatDate(item.createdAt) }}
+                    </p>
+                  </div>
+
                   <p class="">{{ item.description }}</p>
                 </div>
               </div>
               <div v-else class="flex w-full text-gray-700 rounded-r-lg justify-end items-center">
                 <div class="flex-1 flex-col p-8">
-                  <h2 class="text-2xl font-bold">{{ item.title }}</h2>
-                  <p class="text-sky-700/85 font-semibold">发布时间：{{ item.createdAt }}</p>
+                  <button class="text-2xl font-bold mb-1" @click="goToDetail(item)">{{ item.title }}</button>
+                  <div class="flex gap-1">
+                    <svg class="w-5 h-5 text-sky-700/85" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"/>
+                    </svg>
+                    <p class="text-sky-700/85 font-semibold text-sm mb-1">
+                      发表于{{ formatDate(item.createdAt) }}
+                    </p>
+                  </div>
                   <p class="">{{ item.description }}</p>
                 </div>
                 <div class="w-96 h-full object-cover rounded-r-lg overflow-hidden">

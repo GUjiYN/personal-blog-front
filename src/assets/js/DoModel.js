@@ -38,6 +38,20 @@ export let articleListDO = {
     }
 }
 
+export let articleDetailsDO = {
+    baseResponse,
+    data: {
+        aid:'',
+        authid:'',
+        title:'',
+        description:'',
+        tags: '',
+        image:'',
+        createdAt:'',
+        updatedAt:'',
+    }
+}
+
 
 export let searchArticleDO = {
     baseResponse,
