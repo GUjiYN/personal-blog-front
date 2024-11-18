@@ -129,6 +129,10 @@ const dislike = () => {
   action.value = 'disliked';
 };
 
+const goToArticleListByTag = (item) => {
+  console.log(item.tname);
+  router.push('/articleList/' + item.tname);
+}
 </script>
 
 
@@ -310,10 +314,11 @@ const dislike = () => {
             </div>
             <div class="grid grid-cols-3 gap-y-2">
               <button
-                  v-for="(tag, index) in getTagList"
+                  v-for="(item, index) in getTagList"
                   :key="index"
-                  class="text-gray-700 hover:text-gray-500">
-                {{tag.tname}}
+                  class="text-gray-700 hover:text-gray-500"
+                  @click="goToArticleListByTag(item)">
+                {{item.tname}}
               </button>
             </div>
           </div>

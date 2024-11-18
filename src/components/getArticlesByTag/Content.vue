@@ -44,6 +44,11 @@ const goToDetail = (item) => {
   console.log(item.aid);
   router.push('/article/' + item.aid)
 };
+
+const goToArticleListByTag = (item) => {
+  console.log(item.tname);
+  router.push('/articleList/' + item.tname);
+}
 </script>
 <template>
   <div class="relative flex justify-center min-h-screen  bg-cover bg-fixed bg-[url('@/assets/images/img5.jpg')]">
@@ -132,10 +137,11 @@ const goToDetail = (item) => {
             </div>
             <div class="grid grid-cols-3 gap-y-2">
               <button
-                  v-for="(tag, index) in getTagList"
+                  v-for="(item, index) in getTagList"
                   :key="index"
-                  class="text-gray-700 hover:text-gray-500">
-                {{tag.tname}}
+                  class="text-gray-700 hover:text-gray-500"
+                  @click="goToArticleListByTag(item)">
+                {{item.tname}}
               </button>
             </div>
           </div>
