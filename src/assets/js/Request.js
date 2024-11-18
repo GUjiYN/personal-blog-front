@@ -82,6 +82,25 @@ const GetArticleDetails = (aid) => {
 
 
 /**
+ * 根据标签获取文章列表
+ * @param data
+ * @return {*}
+ * @constructor
+ */
+const GetArticleByTag = (data) => {
+    return axios({
+        url: api + "/article/tname",
+        method: "get",
+        params: data,
+        headers: {
+            'content-type': 'application/json;charset=utf-8',
+            'X-Timestamp': new Date().getTime()
+        }
+    })
+}
+
+
+/**
  * 查询文章
  * @param data
  * @return {*}
@@ -235,5 +254,6 @@ export default {
     AddComment,
     DeleteComment,
     GetTagList,
-    GetArticleDetails
+    GetArticleDetails,
+    GetArticleByTag
 }

@@ -10,12 +10,16 @@ import {searchArticleApi} from "@/api/ArticleApi.js";
 const searchArticleList = ref(searchArticleDO); // 使用 articleListDO 存储文章列表
 const articleList = ref(searchArticleVO);
 const dialogSearch = ref(false);
-const closeDialogSearch = () => dialogSearch.value = false;
+
+const closeDialogSearch = () => {
+  dialogSearch.value = false;
+  articleList.value.keyword = ''; // 清空输入框内容
+  searchArticleList.value = [];   // 清空列表内容
+};
+
 const showDialogSearch = () => dialogSearch.value = true;
-// 创建一个响应式数据，用于存储查询结果
 
 
-// 查询文章的逻辑
 const DialogSearch = async () => {
   try {
     const result = await searchArticleApi(articleList.value); // 传递 VO 对象
@@ -60,6 +64,33 @@ let textIndex = 0;
 let charIndex = 0;
 let isDeleting = false;
 
+
+// 搜索框显示状态
+const isSearchVisible = ref(false);
+const isScrolled = ref(false);
+
+// 切换搜索框显示状态
+const toggleSearch = () => {
+  isSearchVisible.value = !isSearchVisible.value;
+};
+
+// 监听页面滚动事件，切换导航栏背景颜色
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 0;
+};
+
+// 当组件挂载时，监听滚动事件，并启动动态文字输入效果
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+  typeEffect();
+});
+
+// 当组件卸载时，移除滚动事件监听器
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
+
+
 // 动态输入和删除效果
 const typeEffect = () => {
   const currentText = texts[textIndex];
@@ -90,31 +121,6 @@ const typeEffect = () => {
     }
   }
 };
-
-// 搜索框显示状态
-const isSearchVisible = ref(false);
-const isScrolled = ref(false);
-
-// 切换搜索框显示状态
-const toggleSearch = () => {
-  isSearchVisible.value = !isSearchVisible.value;
-};
-
-// 监听页面滚动事件，切换导航栏背景颜色
-const handleScroll = () => {
-  isScrolled.value = window.scrollY > 0;
-};
-
-// 当组件挂载时，监听滚动事件，并启动动态文字输入效果
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
-  typeEffect();
-});
-
-// 当组件卸载时，移除滚动事件监听器
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
-});
 </script>
 
 <style>

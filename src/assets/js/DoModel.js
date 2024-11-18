@@ -58,6 +58,20 @@ export let articleDetailsDO = {
     }
 }
 
+export let getArticleByTagDO = {
+    baseResponse,
+    data: {
+        aid: '', // 文章ID
+        authid: '', // 作者ID
+        title: '', // 标题
+        description: '', // 简介
+        tags: '', // 标签（以逗号分隔的字符串）
+        image: '', // 图片地址
+        createdAt: '', // 创建时间
+        updatedAt: '', // 更新时间
+    }
+}
+
 
 export let searchArticleDO = {
     baseResponse,

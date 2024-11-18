@@ -47,6 +47,12 @@ const router = createRouter({
                 path: '/article/:aid',
                 name: 'ArticleDetail',
                 component:() => import('@/views/ArticlePage/ArticleFrame.vue'),
+            },
+            {
+                //根据标签获取文章页面相关路由
+                path:'/articleList/:tname',
+                name:'ArticleListByTag',
+                component:()=> import('@/views/getArticlesByTagPage/getArticlesByTagFrame.vue')
             }
     ]
 })

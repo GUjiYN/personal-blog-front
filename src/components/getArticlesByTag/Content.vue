@@ -1,78 +1,66 @@
 <script setup>
-import {QqOutlined, TagOutlined, UserOutlined} from "@ant-design/icons-vue";
-import {onMounted, ref} from 'vue';
-import {tagListDO} from "@/assets/js/DoModel.js";
-import {tagListVO} from "@/assets/js/VoModel.js";
+import {onMounted, ref, computed} from 'vue';
+import {useRoute} from "vue-router";
+import {QqOutlined, TagOutlined, UserOutlined, ScissorOutlined, LikeFilled, LikeOutlined } from "@ant-design/icons-vue";
+import {articleDetailsDO, getArticleByTagDO, tagListDO,} from "@/assets/js/DoModel.js";
+import {getArticleByTagVO, tagListVO,} from "@/assets/js/VoModel.js";
 import {getTagListApi} from "@/api/TagApi.js";
+import {getArticleByTagApi, getArticleDetailsApi} from "@/api/ArticleApi.js";
 import router from "@/router/index.js";
-
 
 const getTagList = ref(tagListDO);
 const tagList = ref(tagListVO);
-// 用于存储每个标签悬浮时的随机颜色
-const hoverColors = ref([]);
+const getArticleByTag = ref(null);
+const route = useRoute();
 
+/**
+ * 获取标签列表
+ */
 onMounted(async () => {
   try {
-    const result = await getTagListApi(tagList.value);
-    console.log(result); // 检查数据
-    getTagList.value = result.data.records; // 确保赋值为 records 数组
-    // 初始化每个标签的 hoverColors
-    hoverColors.value = getTagList.value.map(() => getRandomColor());
+    const result1 = await getTagListApi(tagList.value);
+    getTagList.value = result1.data.records; // 确保赋值为 records 数组
 
+    getArticleByTagVO.tname = route.params.tname;
+    const result2 = await getArticleByTagApi(getArticleByTagVO);
+    console.log(result2);
+    getArticleByTag.value = result2.data.records || getArticleByTagDO;
   } catch (error) {
     console.error("数据加载出错：", error);
   }
 });
 
-const goToArticleListByTag = (item) => {
-  console.log(item.tname);
-  router.push('/articleList/' + item.tname);
-}
-
-
-// 预设一组固定的颜色
-const presetColors = [
-  "#FF5733", "#05c777", "#3357FF", "#F333FF", "#FF33A6",
-  "#4e87ea", "#74abe3", "#1b303a", "rgba(244,140,183,0.99)", "#FFBD33"
-];
-
-// 生成随机颜色
-const getRandomColor = () => {
-  return presetColors[Math.floor(Math.random() * presetColors.length)];
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
 };
 
+// 跳转到文章详情页
+const goToDetail = (item) => {
+  console.log(item.aid);
+  router.push('/article/' + item.aid)
+};
 </script>
-<style scoped>
-.tag {
-  display: inline-block;
-  margin: 0.2rem;
-  padding: 0.3rem 0.5rem;
-  font-size: 1rem;
-  font-weight: bold;
-  border-radius: 5px;
-}
-</style>
 <template>
-  <div class="relative flex justify-center min-h-screen text-white bg-cover bg-fixed bg-[url('@/assets/images/img5.jpg')]">
+  <div class="relative flex justify-center min-h-screen  bg-cover bg-fixed bg-[url('@/assets/images/img5.jpg')]">
     <div class="relative">
       <div class="grid grid-cols-12 container p-48 gap-6">
         <div class="col-span-9">
           <div class="grid grid-cols-1 gap-6">
-            <div class="bg-gray-100 rounded-lg p-4">
-              <div class="grid grid-cols-9 gap-y-1"> <!-- 这里设置了网格布局 -->
-                <button
-                    v-for="(item, index) in getTagList"
-                    :key="index"
-                    :style="{ color: presetColors[index % presetColors.length] }"
-                    @mouseover="(event) => event.target.style.color = hoverColors[index]"
-                    @mouseleave="(event) => event.target.style.color = presetColors[index % presetColors.length]"
-                    class="font-bold p-1 rounded transition-transform transform hover:scale-110"
-                    @click="goToArticleListByTag(item)"
-                >
-                  {{ item.tname }}
-                </button>
-              </div>
+            <div class="bg-gray-100 rounded-lg h-auto flex p-8">
+              <ol class="relative border-s border-gray-200" >
+                <li class="mb-10 ms-4"  v-for="(item, index) in getArticleByTag" :key="index">
+                  <div class="flex flex-col">
+                    <div class="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -start-1.5 border border-white"></div>
+                    <time class="mb-1 text-sm font-normal leading-none text-gray-400">{{ formatDate(item.createdAt)}}</time>
+                    <button @click="goToDetail(item)" class="text-lg font-semibold text-gray-900 text-left">{{item.title}}</button>
+                  </div>
+                </li>
+              </ol>
             </div>
           </div>
         </div>
@@ -96,7 +84,16 @@ const getRandomColor = () => {
                 <svg aria-hidden="true" class="w-6 h-6 text-gray-800 dark:text-white" fill="currentColor"
                      height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                   <path clip-rule="evenodd"
-                        d="M12.006 2a9.847 9.847 0 0 0-6.484 2.44 10.32 10.32 0 0 0-3.393 6.17 10.48 10.48 0 0 0 1.317 6.955 10.045 10.045 0 0 0 5.4 4.418c.504.095.683-.223.683-.494 0-.245-.01-1.052-.014-1.908-2.78.62-3.366-1.21-3.366-1.21a2.711 2.711 0 0 0-1.11-1.5c-.907-.637.07-.621.07-.621.317.044.62.163.885.346.266.183.487.426.647.71.135.253.318.476.538.655a2.079 2.079 0 0 0 2.37.196c.045-.52.27-1.006.635-1.37-2.219-.259-4.554-1.138-4.554-5.07a4.022 4.022 0 0 1 1.031-2.75 3.77 3.77 0 0 1 .096-2.713s.839-.275 2.749 1.05a9.26 9.26 0 0 1 5.004 0c1.906-1.325 2.74-1.05 2.74-1.05.37.858.406 1.828.101 2.713a4.017 4.017 0 0 1 1.029 2.75c0 3.939-2.339 4.805-4.564 5.058a2.471 2.471 0 0 1 .679 1.897c0 1.372-.012 2.477-.012 2.814 0 .272.18.592.687.492a10.05 10.05 0 0 0 5.388-4.421 10.473 10.473 0 0 0 1.313-6.948 10.32 10.32 0 0 0-3.39-6.165A9.847 9.847 0 0 0 12.007 2Z"
+                        d="M12.006 2a9.847 9.847 0 0 0-6.484 2.44 10.32 10.32 0 0 0-3.393 6.17 10.48 10.48 0
+                         0 0 1.317 6.955 10.045 10.045 0 0 0 5.4
+                         4.418c.504.095.683-.223.683-.494 0-.245-.01-1.052-.014-1.908-2.78.62-3.366-1.21-3.366-1.21a2.711
+                         2.711 0 0 0-1.11-1.5c-.907-.637.07-.621.07-.621.317.044.62.163.885.346.266.183.487.426.647.
+                         71.135.253.318.476.538.655a2.079 2.079 0 0 0 2.37.196c.045-.52.27-1.006.635-1.37-2.219-.259-4.
+                         554-1.138-4.554-5.07a4.022 4.022 0 0 1 1.031-2.75 3.77 3.77 0 0 1 .096-2.713s.839-.275 2.749
+                          1.05a9.26 9.26 0 0 1 5.004 0c1.906-1.325 2.74-1.05 2.74-1.05.37.858.406 1.828.101 2.713a4.017
+                          4.017 0 0 1 1.029 2.75c0 3.939-2.339 4.805-4.564 5.058a2.471 2.471 0 0 1 .679 1.897c0 1.372-.012
+                          2.477-.012 2.814 0 .272.18.592.687.492a10.05 10.05 0 0 0 5.388-4.421 10.473 10.473 0 0 0
+                          1.313-6.948 10.32 10.32 0 0 0-3.39-6.165A9.847 9.847 0 0 0 12.007 2Z"
                         fill-rule="evenodd"/>
                 </svg>
 
@@ -147,3 +144,4 @@ const getRandomColor = () => {
     </div>
   </div>
 </template>
+

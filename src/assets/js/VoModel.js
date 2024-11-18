@@ -20,6 +20,12 @@ export let articleDetailsVO = {
     aid:'',
 }
 
+export let getArticleByTagVO = {
+    tname:'',
+    page:'',
+    size:'',
+}
+
 export let searchArticleVO = {
     keyword: '',
     page: '',
