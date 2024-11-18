@@ -7,26 +7,49 @@ import {searchArticleVO} from "@/assets/js/VoModel.js";
 import {searchArticleApi} from "@/api/ArticleApi.js";
 
 
-const emit = defineEmits(['update-articles']); // 定义一个事件，用于向父组件传递数据
 const searchArticleList = ref(searchArticleDO); // 使用 articleListDO 存储文章列表
 const articleList = ref(searchArticleVO);
 const dialogSearch = ref(false);
 const closeDialogSearch = () => dialogSearch.value = false;
 const showDialogSearch = () => dialogSearch.value = true;
+// 创建一个响应式数据，用于存储查询结果
 
 
 // 查询文章的逻辑
 const DialogSearch = async () => {
   try {
     const result = await searchArticleApi(articleList.value); // 传递 VO 对象
-    searchArticleList.value = result.data.records;
+    searchArticleList.value = result.data.records || [];
     console.log('文章', searchArticleList.value);
-    // 通过 emit 将查询结果传递给父组件
-    emit('update-articles', searchArticleList.value);
     console.log('查询成功', searchArticleList.value);
   } catch (error) {
     console.error('查询文章时出错：', error);
   }
+};
+
+
+// 输入框变化事件
+const handleInputChange = async () => {
+  await DialogSearch(); // 输入框变化时实时触发查询
+};
+
+
+// 高亮匹配关键字
+const highlightText = (text) => {
+  const keyword = articleList.value.keyword.trim();
+  if (!keyword) return text; // 如果没有关键字，返回原文本
+  const regex = new RegExp(`(${keyword})`, "gi"); // 匹配关键字，忽略大小写
+  // 使用 Tailwind 样式直接包裹匹配关键字
+  return text.replace(
+      regex,
+      `<span class="text-red-500 font-bold">$1</span>`
+  );
+};
+
+// 跳转到文章详情页
+const goToDetail = (item) => {
+  console.log(item.aid);
+  router.push('/article/' + item.aid)
 };
 
 
@@ -173,22 +196,58 @@ onUnmounted(() => {
   </div>
     <!--查询文章对话框-->
     <!-- 搜索对话框 -->
-    <a-modal v-model:open="dialogSearch" class="w-48" title="查询文章">
-      <a-form :label-col="{ span: 5 }" class="p-4 grid justify-center">
-        <a-form-item :rules="[{ required: true }]" >
-          <!-- 绑定搜索关键字 -->
-          <a-input v-model:value="articleList.keyword" size="large" placeholder="请输入文章关键字...">
-            <template #prefix>
-              <SearchOutlined />
-            </template>
-          </a-input>
-        </a-form-item>
-      </a-form>
-      <template #footer>
-        <a-button @click="closeDialogSearch">取消</a-button>
-        <a-button class="bg-aspargus mt-4" type="primary" @click="DialogSearch">查询</a-button>
+  <a-modal v-model:open="dialogSearch" class="w-48" title="搜索">
+    <!-- 搜索输入框 -->
+    <a-form class="p-4 grid justify-center">
+      <a-form-item :rules="[{ required: true }]">
+        <a-input
+            v-model:value="articleList.keyword"
+            size="large"
+            placeholder="请输入文章关键字..."
+            @input="handleInputChange"
+        >
+        <template #prefix>
+          <SearchOutlined />
+        </template>
+        </a-input>
+      </a-form-item>
+    </a-form>
+
+    <!-- 文章列表 -->
+    <a-list
+        v-if="searchArticleList.length > 0"
+        class="mt-4"
+        :dataSource="searchArticleList"
+        bordered
+    >
+      <template #renderItem="{ item }">
+        <a-list-item>
+          <button @click="goToDetail(item)">
+            <!-- 高亮渲染文章标题 -->
+            <h3 class="text-lg font-bold" v-html="highlightText(item.title)"></h3>
+            <!-- 高亮渲染文章描述 -->
+            <p class="text-sm text-gray-500" v-html="highlightText(item.description)"></p>
+          </button>
+        </a-list-item>
       </template>
-    </a-modal>
+    </a-list>
+    <template v-else>
+      <p class="text-gray-500 text-center mt-4">暂无数据</p>
+    </template>
+
+    <template #footer>
+      <a-button @click="closeDialogSearch">取消</a-button>
+      <a-button
+          class="bg-aspargus mt-4"
+          type="primary"
+          @click="DialogSearch"
+      >查询</a-button>
+    </template>
+  </a-modal>
 
 </template>
+
+
+
+
 

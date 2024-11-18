@@ -1,6 +1,6 @@
 <template>
-  <Header  @update-articles="updateArticles" />
-  <Content :articles="showAll ? getArticleList : searchArticleList" />
+  <Header/>
+  <Content/>
   <Footer/>
 </template>
 
@@ -15,11 +15,9 @@ import {articleListVO} from "@/assets/js/VoModel.js";
 
 // 创建一个响应式数据，用于存储查询结果
 const searchArticleList = ref([]);
-const getArticleList = ref(articleListDO);
-const articleList = ref(articleListVO);
-const showAll = ref(true); // 默认显示全部文章
 
-onMounted(async () => {
+
+/*onMounted(async () => {
   try {
     const result = await getArticleListApi(articleList.value);
     console.log(result); // 检查数据
@@ -27,7 +25,7 @@ onMounted(async () => {
   } catch (error) {
     console.error("数据加载出错：", error);
   }
-});
+});*/
 
 
 // 更新查询结果
@@ -35,4 +33,6 @@ const updateArticles = (articles) => {
   searchArticleList.value = articles;
   showAll.value = false; // 切换为显示查询结果
 };
+
+
 </script>

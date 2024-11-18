@@ -5,10 +5,40 @@ import {tagListDO} from "@/assets/js/DoModel.js";
 import {tagListVO} from "@/assets/js/VoModel.js";
 import {getTagListApi} from "@/api/TagApi.js";
 import router from "@/router/index.js";
+import {articleListDO} from "@/assets/js/DoModel.js";
+import {articleListVO} from "@/assets/js/VoModel.js";
+import {getArticleListApi} from "@/api/ArticleApi.js";
 
+const getArticleList = ref(articleListDO);
+const articleList = ref(articleListVO);
+const totalArticles = ref([]);
+const currentPage = ref(1);
+articleListVO.page = 1;
+
+
+// 接收父组件的 props
 const props = defineProps({
-  articles: Array // 接收来自父组件的查询结果数据
+  articles: {
+    type: Array,
+    required: true,
+  },
+  currentPage: {
+    type: Number,
+    required: true,
+  },
+  totalArticles: {
+    type: Number,
+    required: true,
+  },
 });
+
+// 向父组件发出事件
+const emit = defineEmits(['change-page']);
+
+// 分页切换处理
+const onPageChange = (page) => {
+  emit('change-page', page); // 通知父组件切换到新页码
+};
 
 const getTagList = ref(tagListDO);
 const tagList = ref(tagListVO);
@@ -30,6 +60,24 @@ const formatDate = (dateString) => {
 };
 
 
+
+const fetchArticles = async () => {
+  try {
+    const size = 5; // 每页显示5条数据
+    const response = await getArticleListApi(articleList.value);
+    // 更新文章列表和分页信息
+    getArticleList.value = response.data.records; // 接口的 records 字段包含文章数据
+    totalArticles.value = response.data.total; // 接口总数据量
+    currentPage.value = response.data.current; // 当前页码
+  } catch (error) {
+    console.error("加载文章列表失败:", error);
+  }
+};
+// 初始化加载第一页数据
+onMounted(() => {
+  fetchArticles(1);
+});
+
 onMounted(async () => {
   try {
     const result = await getTagListApi(tagList.value);
@@ -42,6 +90,7 @@ onMounted(async () => {
 
 </script>
 
+
 <template>
   <div class="relative flex justify-center min-h-screen text-white bg-cover bg-fixed bg-[url('@/assets/images/img5.jpg')]">
     <div class="absolute top-0 left-0 right-0 bottom-0 bg-black opacity-20"></div>
@@ -49,7 +98,7 @@ onMounted(async () => {
       <div class="grid grid-cols-12 container p-48 gap-6">
         <div class="col-span-9">
           <div class="grid grid-cols-1 gap-6">
-            <div v-for="(item, index) in articles" :key="index" class="bg-gray-100 rounded-lg h-64 flex">
+            <div v-for="(item, index) in getArticleList" :key="index" class="bg-gray-100 rounded-lg h-64 flex">
               <div v-if="index % 2 === 0" class="flex w-full text-gray-700 rounded-l-lg justify-start items-center">
                 <div class="w-96 h-full object-cover rounded-l-lg overflow-hidden">
                   <img
@@ -69,7 +118,7 @@ onMounted(async () => {
                     </p>
                   </div>
 
-                  <p class="">{{ item.description }}</p>
+                  <p  :class="{'line-clamp-3': !showFullContent}" >{{ item.description }}</p>
                 </div>
               </div>
               <div v-else class="flex w-full text-gray-700 rounded-r-lg justify-end items-center">
@@ -83,7 +132,7 @@ onMounted(async () => {
                       发表于{{ formatDate(item.createdAt) }}
                     </p>
                   </div>
-                  <p class="">{{ item.description }}</p>
+                  <p  :class="{'line-clamp-3': !showFullContent}" >{{ item.description }}</p>
                 </div>
                 <div class="w-96 h-full object-cover rounded-r-lg overflow-hidden">
                   <img
@@ -94,73 +143,15 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
-
-            <div class="mt-6 flex items-center justify-center">
-              <ul class="flex items-center -space-x-px h-10 text-base">
-                <li>
-                  <a class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500
-                    bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700" href="#"
-                  >
-                    <span class="sr-only">Previous</span>
-                    <svg aria-hidden="true" class="w-3 h-3 rtl:rotate-180" fill="none"
-                         viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M5 1 1 5l4 4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="2"
-                      />
-                    </svg>
-                  </a>
-                </li>
-                <li>
-                  <a class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white
-                    border border-gray-300 hover:bg-gray-100 hover:text-gray-700" href="#"
-                  >
-                    1
-                  </a>
-                </li>
-                <li>
-                  <a class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white
-                    border border-gray-300 hover:bg-gray-100 hover:text-gray-700" href="#"
-                  >
-                    2
-                  </a>
-                </li>
-                <li>
-                  <a aria-current="page" class="z-10 flex items-center justify-center px-4 h-10 leading-tight
-                    text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700" href="#"
-                  >
-                    3
-                  </a>
-                </li>
-                <li>
-                  <a class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white
-                    border border-gray-300 hover:bg-gray-100 hover:text-gray-700" href="#"
-                  >
-                    4
-                  </a>
-                </li>
-                <li>
-                  <a class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white
-                    border border-gray-300 hover:bg-gray-100 hover:text-gray-700" href="#"
-                  >
-                    5
-                  </a>
-                </li>
-                <li>
-                  <a class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white
-                    border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700" href="#"
-                  >
-                    <span class="sr-only">Next</span>
-                    <svg aria-hidden="true" class="w-3 h-3 rtl:rotate-180" fill="none"
-                         viewBox="0 0 6 10" xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="m1 9 4-4-4-4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="2"
-                      />
-                    </svg>
-                  </a>
-                </li>
-              </ul>
+            <div>
+              <a-pagination
+                  :current="currentPage"
+                  :total="totalArticles"
+                  :pageSize="5"
+                  @change="onPageChange"
+                  show-less-items
+                  class="custom-pagination"
+              />
             </div>
           </div>
         </div>
@@ -235,3 +226,28 @@ onMounted(async () => {
     </div>
   </div>
 </template>
+<style scoped>
+/* 默认分页文字颜色为白色 */
+::v-deep(.ant-pagination-item a) {
+  color: white !important;
+}
+
+/* 当前页选中时背景为白色，文字为黑色 */
+::v-deep(.ant-pagination-item-active) {
+  background-color: white !important;
+}
+
+::v-deep(.ant-pagination-item-active a) {
+  color: black !important;
+}
+
+/* 强制覆盖左箭头的样式 */
+::v-deep(.ant-pagination-prev .ant-pagination-item-link) {
+  color: white !important;
+}
+
+/* 强制覆盖右箭头的样式 */
+::v-deep(.ant-pagination-next .ant-pagination-item-link) {
+  color: white !important;
+}
+</style>

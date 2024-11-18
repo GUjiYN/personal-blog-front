@@ -113,6 +113,7 @@ const articleContentHtml = computed(() => {
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import {message} from "ant-design-vue";
+import router from "@/router/index.js";
 dayjs.extend(relativeTime);
 const likes = ref(0);
 const dislikes = ref(0);
@@ -191,7 +192,7 @@ const dislike = () => {
                   </div>
                   <div class="flex items-center space-x-3">
                     <span class="text-gray-500"> 字</span>
-                    <button  class="bg-gray-300 py-2 px-4 rounded-lg text-gray-500 hover:bg-gray-400">登录</button>
+                    <button @click="router.replace({name:'Login'})" class="bg-gray-300 py-2 px-4 rounded-lg text-gray-500 hover:bg-gray-400">登录</button>
                     <button class="bg-[#06b6d4] py-2 px-4 rounded-lg text-gray-100 hover:bg-[#0891b2] hover:text-gray-200"
                             @click="AddComment">
                       提交

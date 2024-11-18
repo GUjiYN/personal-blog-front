@@ -26,17 +26,23 @@ export let loginDO = {
 
 export let articleListDO = {
     baseResponse,
-    data: {
-        aid:'',
-        authid:'',
-        title:'',
-        description:'',
-        tags: '',
-        image:'',
-        createdAt:'',
-        updatedAt:'',
-    }
-}
+    total: 0, // 文章总数
+    size: 5, // 每页文章数
+    current: 1, // 当前页码
+    pages:'',
+    data:  // 文章列表
+        {
+            aid: '', // 文章ID
+            authid: '', // 作者ID
+            title: '', // 标题
+            description: '', // 简介
+            tags: '', // 标签（以逗号分隔的字符串）
+            image: '', // 图片地址
+            createdAt: '', // 创建时间
+            updatedAt: '', // 更新时间
+        }
+};
+
 
 export let articleDetailsDO = {
     baseResponse,
