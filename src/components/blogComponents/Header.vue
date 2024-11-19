@@ -1,3 +1,9 @@
+<style>
+
+
+
+</style>
+
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { SearchOutlined, LinkOutlined, MenuOutlined, HomeOutlined, DownOutlined } from "@ant-design/icons-vue";
@@ -67,28 +73,44 @@ let isDeleting = false;
 
 // 搜索框显示状态
 const isSearchVisible = ref(false);
-const isScrolled = ref(false);
+
 
 // 切换搜索框显示状态
 const toggleSearch = () => {
   isSearchVisible.value = !isSearchVisible.value;
 };
 
-// 监听页面滚动事件，切换导航栏背景颜色
+const lastScrollTop = ref(0); // 记录上一次滚动位置
+const isScrolled = ref(false); // 控制背景是否为白色透明
+const isNavbarVisible = ref(true); // 控制导航栏是否可见
+
 const handleScroll = () => {
-  isScrolled.value = window.scrollY > 0;
+  const currentScrollTop = window.scrollY;
+
+  if (currentScrollTop > lastScrollTop.value) {
+    // 向下滚动，隐藏导航栏
+    isNavbarVisible.value = false;
+  } else {
+    // 向上滚动，显示导航栏
+    isNavbarVisible.value = true;
+  }
+
+  // 如果滚动距离超过50px，切换为白色透明背景
+  isScrolled.value = currentScrollTop > 50;
+
+  lastScrollTop.value = currentScrollTop; // 更新滚动位置
 };
 
-// 当组件挂载时，监听滚动事件，并启动动态文字输入效果
+// 监听滚动事件
 onMounted(() => {
   window.addEventListener('scroll', handleScroll);
-  typeEffect();
 });
 
-// 当组件卸载时，移除滚动事件监听器
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
+
+
 
 
 // 动态输入和删除效果
@@ -144,25 +166,54 @@ const typeEffect = () => {
   <div class="relative bg-cover h-screen bg-[url('@/assets/images/img2.jpg')]">
     <div class="absolute top-0 left-0 right-0 bottom-0 bg-black opacity-20"></div>
     <div class="relative">
-      <nav :class="['border-gray-200 py-3 px-5 fixed top-0 left-0 right-0 z-50 flex justify-center transition-all ' +
-      'duration-300', isScrolled ? 'bg-white/70' : 'bg-transparent']">
+      <nav
+          :class="[
+    'py-3 px-5 fixed top-0 left-0 right-0 z-50 flex justify-center transition-all duration-300',
+    isScrolled ? 'bg-white/70 text-gray-700' : 'bg-transparent text-white',
+    isNavbarVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+  ]"
+      >
         <div class="grid grid-cols-12 w-full justify-center items-center">
           <div class="col-span-8 space-x-2">
-            <a :class="['flex items-center gap-2', isScrolled ? 'text-gray-700' : 'text-gray-200']" href="/">
+            <a
+                :class="[
+          'flex items-center gap-2 transition-all duration-300',
+          isScrolled ? 'text-gray-700' : 'text-white'
+        ]"
+                href="/"
+            >
               <img alt="LOGO" class="w-10 h-10 rounded-lg" src="@/assets/images/favicon.ico" />
-              <span class="font-semibold text-xl text-gray-200 hover:text-white">终端笔谈</span>
+              <span class="font-semibold text-xl">终端笔谈</span>
             </a>
           </div>
           <div class="col-span-4 flex space-x-6 justify-end text-md">
-            <a :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" href="/" class="flex gap-1 items-center space-x-1">
+            <a
+                :class="[
+          'flex gap-1 items-center space-x-1 transition-all duration-300',
+          isScrolled ? 'text-gray-700' : 'text-white'
+        ]"
+                href="/"
+            >
               <HomeOutlined />
               <span>首页</span>
             </a>
-            <button @click="showDialogSearch" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" class="flex gap-1 items-center space-x-1">
+            <button
+                @click="showDialogSearch"
+                :class="[
+          'flex gap-1 items-center space-x-1 transition-all duration-300',
+          isScrolled ? 'text-gray-700' : 'text-white'
+        ]"
+            >
               <SearchOutlined />
               <span>搜索</span>
             </button>
-            <button @click="router.push({name:'Friend'})" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" class="flex gap-1 items-center space-x-1">
+            <button
+                @click="router.push({ name: 'Friend' })"
+                :class="[
+          'flex gap-1 items-center space-x-1 transition-all duration-300',
+          isScrolled ? 'text-gray-700' : 'text-white'
+        ]"
+            >
               <LinkOutlined />
               <span>友链</span>
             </button>
@@ -189,6 +240,8 @@ const typeEffect = () => {
           </div>
         </div>
       </nav>
+
+
     </div>
     <div class="relative flex items-center justify-center h-full">
       <div class="relative flex items-center justify-center h-full">
