@@ -1,6 +1,6 @@
 <script setup>
 import {QqOutlined, TagOutlined, UserOutlined,CalendarOutlined} from "@ant-design/icons-vue";
-import {onMounted, ref} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import {tagListDO} from "@/assets/js/DoModel.js";
 import {tagListVO} from "@/assets/js/VoModel.js";
 import {getTagListApi} from "@/api/TagApi.js";
@@ -11,34 +11,14 @@ import {getArticleListApi} from "@/api/ArticleApi.js";
 
 const getArticleList = ref(articleListDO);
 const articleList = ref(articleListVO);
-const totalArticles = ref([]);
-const currentPage = ref(1);
-articleListVO.page = 1;
+const totalArticles = ref(0); // 总文章数
+const currentPage = ref(1); // 当前页码
+const pageSize = ref(5); // 每页显示的文章数
+articleListVO.page = currentPage;
+articleListVO.size = pageSize;
 
-
-// 接收父组件的 props
-const props = defineProps({
-  articles: {
-    type: Array,
-    required: true,
-  },
-  currentPage: {
-    type: Number,
-    required: true,
-  },
-  totalArticles: {
-    type: Number,
-    required: true,
-  },
-});
-
-// 向父组件发出事件
-const emit = defineEmits(['change-page']);
-
-// 分页切换处理
-const onPageChange = (page) => {
-  emit('change-page', page); // 通知父组件切换到新页码
-};
+// 计算总页数
+const totalPages = computed(() => Math.ceil(totalArticles.value / pageSize.value));
 
 const getTagList = ref(tagListDO);
 const tagList = ref(tagListVO);
@@ -65,19 +45,27 @@ const formatDate = (dateString) => {
 
 const fetchArticles = async () => {
   try {
-    const size = 5; // 每页显示5条数据
-    const response = await getArticleListApi(articleList.value);
-    // 更新文章列表和分页信息
-    getArticleList.value = response.data.records; // 接口的 records 字段包含文章数据
-    totalArticles.value = response.data.total; // 接口总数据量
-    currentPage.value = response.data.current; // 当前页码
+    const response = await getArticleListApi(articleList.value); // 调用接口
+    getArticleList.value = response.data.records; // 更新文章列表
+    totalArticles.value = response.data.total; // 更新总文章数
   } catch (error) {
     console.error("加载文章列表失败:", error);
   }
 };
+
+// 跳转到指定页码
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page; // 更新当前页码
+    fetchArticles(); // 加载新页数据
+  }
+};
+
+
+
 // 初始化加载第一页数据
 onMounted(() => {
-  fetchArticles(1);
+  fetchArticles();
 });
 
 onMounted(async () => {
@@ -94,6 +82,8 @@ const goToArticleListByTag = (item) => {
   console.log(item.tname);
   router.push('/articleList/' + item.tname);
 }
+
+
 
 </script>
 
@@ -151,14 +141,67 @@ const goToArticleListByTag = (item) => {
               </div>
             </div>
             <div>
-              <a-pagination
-                  :current="currentPage"
-                  :total="totalArticles"
-                  :pageSize="5"
-                  @change="onPageChange"
-                  show-less-items
-                  class="custom-pagination"
-              />
+              <!-- 分页组件 -->
+              <ol class="flex justify-center gap-1 text-xs font-medium">
+                <!-- 上一页按钮 -->
+                <li>
+                  <button
+                      @click="goToPage(currentPage - 1)"
+                      class="inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
+                      :disabled="currentPage === 1"
+                  >
+                    <span class="sr-only">Prev Page</span>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="size-3"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                    >
+                      <path
+                          fill-rule="evenodd"
+                          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                          clip-rule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </li>
+
+                <!-- 页码按钮 -->
+                <li v-for="page in totalPages" :key="page">
+                  <button
+                      @click="goToPage(page)"
+                      :class="[
+            'block size-8 rounded border text-center leading-8',
+            page === currentPage ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white text-gray-900 border-gray-100'
+          ]"
+                  >
+                    {{ page }}
+                  </button>
+                </li>
+
+                <!-- 下一页按钮 -->
+                <li>
+                  <button
+                      @click="goToPage(currentPage + 1)"
+                      class="inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
+                      :disabled="currentPage === totalPages"
+                  >
+                    <span class="sr-only">Next Page</span>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="size-3"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                    >
+                      <path
+                          fill-rule="evenodd"
+                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                          clip-rule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </li>
+              </ol>
             </div>
           </div>
         </div>
@@ -235,27 +278,6 @@ const goToArticleListByTag = (item) => {
   </div>
 </template>
 <style scoped>
-/* 默认分页文字颜色为白色 */
-::v-deep(.ant-pagination-item a) {
-  color: white !important;
-}
 
-/* 当前页选中时背景为白色，文字为黑色 */
-::v-deep(.ant-pagination-item-active) {
-  background-color: white !important;
-}
 
-::v-deep(.ant-pagination-item-active a) {
-  color: black !important;
-}
-
-/* 强制覆盖左箭头的样式 */
-::v-deep(.ant-pagination-prev .ant-pagination-item-link) {
-  color: white !important;
-}
-
-/* 强制覆盖右箭头的样式 */
-::v-deep(.ant-pagination-next .ant-pagination-item-link) {
-  color: white !important;
-}
 </style>
