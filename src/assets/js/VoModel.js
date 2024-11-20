@@ -57,6 +57,15 @@ export let addCommentVO = {
     cdesc:'',
 }
 
+export let addReplyVO = {
+    aid:'',
+    cname:'',
+    email:'',
+    cdesc:'',
+    replyid:''
+
+}
+
 export let deleteCommentVO = {
     cid:''
 }

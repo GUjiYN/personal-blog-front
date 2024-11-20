@@ -128,6 +128,18 @@ export let addCommentDO = {
     }
 }
 
+export let addReplyDO = {
+    baseResponse,
+    data: {
+        aid:'',
+        cid:'',
+        cname:'',
+        email:'',
+        cdesc:'',
+        createdAt:'',
+    }
+}
+
 export let deleteCommentDO = {
     baseResponse,
     data: {

@@ -193,9 +193,27 @@ const GetCommentList = (data) => {
     })
 }
 
+/**
+ * 增加评论
+ * @param data
+ * @return {*}
+ * @constructor
+ */
 const AddComment = (data) => {
     return axios({
         url: api + "/comment/add",
+        method: "post",
+        data: data,
+        headers: {
+            'content-type': 'application/json;charset=utf-8',
+            'X-Timestamp': new Date().getTime()
+        }
+    })
+}
+
+const AddReply = (data) => {
+    return axios({
+        url: api + "/reply/add",
         method: "post",
         data: data,
         headers: {
@@ -255,5 +273,6 @@ export default {
     DeleteComment,
     GetTagList,
     GetArticleDetails,
-    GetArticleByTag
+    GetArticleByTag,
+    AddReply
 }
