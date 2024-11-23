@@ -1,14 +1,24 @@
 <script setup>
-import {onMounted, ref, computed} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import {getArticleDetailsApi} from "@/api/ArticleApi.js";
-import {addCommentDO, articleDetailsDO} from "@/assets/js/DoModel.js";
+import {addCommentDO, articleDetailsDO, commentListDO, tagListDO} from "@/assets/js/DoModel.js";
 import {useRoute} from "vue-router";
-import {QqOutlined, TagOutlined, UserOutlined, ScissorOutlined, LikeFilled, LikeOutlined } from "@ant-design/icons-vue";
-import {tagListDO, commentListDO} from "@/assets/js/DoModel.js";
-import {tagListVO, commentListVO, addCommentVO} from "@/assets/js/VoModel.js";
+import {
+  LockOutlined,
+  QqOutlined,
+  ScissorOutlined,
+  TagOutlined,
+  UserOutlined
+} from "@ant-design/icons-vue";
+import {commentListVO, tagListVO} from "@/assets/js/VoModel.js";
 import {getTagListApi} from "@/api/TagApi.js";
 import {addCommentApi, getCommentListApi} from "@/api/CommentApi.js";
 import {marked} from 'marked';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import {message} from "ant-design-vue";
+import router from "@/router/index.js";
+import {addReplyApi} from "@/api/ReplyApi.js";
 
 
 const getTagList = ref(tagListDO);
@@ -18,43 +28,86 @@ const route = useRoute();
 const aid = route.params.aid;
 const getCommentList = ref(commentListDO);
 const commentList = ref(commentListVO);
-const getAddCommentDO = ref(addCommentDO);
 const getAddCommentVO = ref({
   aid: route.params.aid, // 文章ID
-  cname: '',                     // 评论者名称
+  cname: '', // 评论者名称
+  email:'',
   cdesc: ''                      // 评论内容
 });
-
 commentListVO.aid = route.params.aid;
+const ReplyDiaLog = ref(false);
+const getAddReplyVO = ref({
+  aid: route.params.aid,
+  cname:'',
+  email:'',
+  cdesc:'',
+  replyid:'',
+});
+const totalComments = ref(0); // 总文章数
+const currentPage = ref(1); // 当前页码
+const pageSize = ref(5); // 每页显示的文章数
+commentListVO.page = currentPage;
+commentListVO.size = pageSize;
+// 计算总页数
+const totalPages = computed(() => Math.ceil(totalComments.value / pageSize.value));
 
+const GetArticleDetails = async () => {
+  try {
+    const result1 = await getArticleDetailsApi(aid);
+    getArticleDetails.value = result1.data || articleDetailsDO;
+  } catch (error) {
+    console.error("数据加载出错：", error);
+  }
+}
+
+const GetTagList = async () => {
+  try {
+    const result2 = await getTagListApi(tagList.value);
+    getTagList.value = result2.data.records; // 确保赋值为 records 数组
+  } catch (error) {
+    console.error("数据加载出错：", error);
+  }
+}
+
+const GetCommentList = async () => {
+  try {
+    const result3 = await getCommentListApi(commentList.value);
+    getCommentList.value = result3.data.records.map(comment => ({
+      ...comment,
+      replies: comment.replies || [],
+    }));
+    totalComments.value = result3.data.total; // 更新总评论数
+    console.log("1111", getCommentList);
+  } catch (error) {
+    console.error("数据加载出错：", error);
+  }
+}
 
 /**
  * 获取文章详情
  * 获取标签列表
  * 获取评论列表
  */
-onMounted(async () => {
-  try {
-    const result1 = await getArticleDetailsApi(aid);
-    getArticleDetails.value = result1.data || articleDetailsDO;
-
-    const result2 = await getTagListApi(tagList.value);
-    getTagList.value = result2.data.records; // 确保赋值为 records 数组
-
-    const result3 = await getCommentListApi(commentList.value);
-    getCommentList.value = result3.data.records;
-    console.log("1111", getCommentList);
-  } catch (error) {
-    console.error("数据加载出错：", error);
-  }
+onMounted(() => {
+  GetArticleDetails();
+  GetTagList();
+  GetCommentList();
 });
+
+
+// 跳转到指定页码
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page; // 更新当前页码
+    GetCommentList(); // 加载新页数据
+  }
+};
 
 /**
  * 发布评论
  */
 const AddComment = async () => {
   console.log('提交的评论数据：', getAddCommentVO.value);
-
   try {
     // 发送评论请求
     const result = await addCommentApi(getAddCommentVO.value);
@@ -83,6 +136,51 @@ const AddComment = async () => {
   }
 };
 
+const showReplyDiaLog = (replyId) => {
+  if (!replyId) {
+    console.error("回复ID为空，无法打开回复框！");
+    return;
+  }
+  getAddReplyVO.value.replyid = replyId; // 将评论的ID赋值给回复ID
+  ReplyDiaLog.value = true; // 打开对话框
+};
+
+
+const AddReply = async () => {
+  console.log('回复内容:', getAddReplyVO.value);
+
+  try {
+    const result = await addReplyApi(getAddReplyVO.value);
+    if (result.output === "Success") {
+      message.success("回复发布成功");
+
+      // 创建新的回复对象
+      const newReply = {
+        cname: getAddReplyVO.value.cname,
+        cdesc: getAddReplyVO.value.cdesc,
+        createdAt: new Date().toISOString(),
+        replyid:getAddReplyVO.value.replyid
+      };
+
+      // 找到对应的评论并添加回复
+      const targetComment = getCommentList.value.find(comment => comment.cid === getAddReplyVO.value.replyid);
+      if (targetComment) {
+        targetComment.replies.push(newReply);
+      }
+
+      // 清空回复内容
+      getAddReplyVO.value.cname = '';
+      getAddReplyVO.value.email = '';
+      getAddReplyVO.value.cdesc = '';
+
+      ReplyDiaLog.value = false; // 关闭对话框
+    }
+  } catch (error) {
+    console.error("回复发布失败：", error);
+    message.error("回复发布失败，请稍后重试！");
+  }
+};
+
 /**
  * 时间格式化
  * @param dateString
@@ -102,32 +200,13 @@ const formatDate = (dateString) => {
 };
 
 
-
-
-
 // 使用 computed 属性将 Markdown 转换为 HTML
 const articleContentHtml = computed(() => {
   return getArticleDetails.value ? marked(getArticleDetails.value.description) : '';
 });
 
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import {message} from "ant-design-vue";
-import router from "@/router/index.js";
 dayjs.extend(relativeTime);
-const likes = ref(0);
-const dislikes = ref(0);
-const action = ref();
-const like = () => {
-  likes.value = 1;
-  dislikes.value = 0;
-  action.value = 'liked';
-};
-const dislike = () => {
-  likes.value = 0;
-  dislikes.value = 1;
-  action.value = 'disliked';
-};
+
 
 const goToArticleListByTag = (item) => {
   console.log(item.tname);
@@ -159,17 +238,18 @@ const goToArticleListByTag = (item) => {
               </a-divider>
               <div class="bg-gray-200 text-gray-300 p-6 rounded-lg space-y-6">
                 <a-form
-                    layout="inline"
-                    name="basic"
                     :label-col="{ span: 8 }"
                     :wrapper-col="{ span: 16 }"
                     autocomplete="off"
+                    layout="inline"
+                    name="basic"
                 >
                   <a-form-item
                       label="昵称"
                       name="username"
                   >
-                    <a-input v-model:value="getAddCommentVO.cname" class="bg-gray-300 border border-gray-300 rounded-lg"/>
+                    <a-input v-model:value="getAddCommentVO.cname"
+                             class="bg-gray-300 border border-gray-300 rounded-lg"/>
                   </a-form-item>
 
                   <a-form-item
@@ -183,9 +263,9 @@ const goToArticleListByTag = (item) => {
                   <a-textarea
                       v-model:value="getAddCommentVO.cdesc"
                       :rows="4"
-                      placeholder="欢迎评论"
                       class="w-full bg-gray-300 text-gray-200 border border-gray-300 rounded-md p-3
                       focus:outline-none focus:border-blue-500"
+                      placeholder="欢迎评论"
                   />
                 </div>
                 <div class="flex justify-between items-center">
@@ -196,61 +276,118 @@ const goToArticleListByTag = (item) => {
                   </div>
                   <div class="flex items-center space-x-3">
                     <span class="text-gray-500"> 字</span>
-                    <button @click="router.replace({name:'Login'})" class="bg-gray-300 py-2 px-4 rounded-lg text-gray-500 hover:bg-gray-400">登录</button>
-                    <button class="bg-[#06b6d4] py-2 px-4 rounded-lg text-gray-100 hover:bg-[#0891b2] hover:text-gray-200"
-                            @click="AddComment">
+                    <button class="bg-gray-300 py-2 px-4 rounded-lg text-gray-500 hover:bg-gray-400"
+                            @click="router.replace({name:'Login'})">登录
+                    </button>
+                    <button
+                        class="bg-sky-500 py-2 px-4 rounded-lg text-gray-100 hover:bg-sky-400 hover:text-gray-200"
+                        @click="AddComment">
                       提交
                     </button>
                   </div>
                 </div>
                 <div>
-                  <a-comment v-if="getCommentList.length > 0" v-for="(item, index) in getCommentList" :key="index">
+                  <a-comment
+                      v-for="(item, index) in getCommentList"
+                      :key="index"
+                  >
                     <template #actions>
-                      <span key="comment-basic-like">
-                        <a-tooltip title="Like">
-                          <template v-if="action === 'liked'">
-                            <LikeFilled @click="like" />
-                          </template>
-                          <template v-else>
-                            <LikeOutlined @click="like" />
-                          </template>
-                        </a-tooltip>
-                        <span style="padding-left: 8px; cursor: auto">
-                          {{ likes }}
-                        </span>
-                      </span>
-                      <span key="comment-basic-dislike">
-                        <a-tooltip title="Dislike">
-                          <template v-if="action === 'disliked'">
-                            <DislikeFilled @click="dislike" />
-                          </template>
-                          <template v-else>
-                            <DislikeOutlined @click="dislike" />
-                          </template>
-                        </a-tooltip>
-                        <span style="padding-left: 8px; cursor: auto">
-                          {{ dislikes }}
-                        </span>
-                      </span>
-                      <span key="comment-basic-reply-to">Reply to</span>
+                      <button key="comment-basic-reply-to" @click="showReplyDiaLog(item.cid)">回复</button>
                     </template>
-                    <template #author><a>{{item.cname}}</a></template>
+                    <template #author><a>{{ item.cname }}</a></template>
                     <template #avatar>
                       <a-avatar src="https://joeschmoe.io/api/v1/random" alt="Han Solo" />
                     </template>
-                    <template #content >
-                      <p class="text-sm text-gray-500">
-                        {{item.cdesc}}
-                      </p>
-                    </template>
+                    <template #content><p>{{ item.cdesc }}</p></template>
                     <template #datetime>
-                      <a-tooltip >
+                      <a-tooltip>
                         <span>{{ formatDate(item.createdAt) }}</span>
                       </a-tooltip>
                     </template>
+
+                    <!-- 显示回复 -->
+                    <div v-if="item.replies && item.replies.length > 0" class="pl-8">
+                      <a-comment
+                          v-for="(reply, replyIndex) in item.replies"
+                          :key="replyIndex"
+                      >
+                        <template #author><a>{{ reply.cname }}</a></template>
+                        <template #avatar>
+                          <a-avatar src="https://joeschmoe.io/api/v1/random" alt="Han Solo" />
+                        </template>
+                        <template #content><p>{{ reply.cdesc }}</p></template>
+                        <template #datetime>
+                          <a-tooltip>
+                            <span>{{ formatDate(reply.createdAt) }}</span>
+                          </a-tooltip>
+                        </template>
+                      </a-comment>
+                    </div>
                   </a-comment>
-                  <p v-else class="text-gray-500">暂无评论</p>
                 </div>
+              </div>
+              <div class="mt-4">
+                <!-- 分页组件 -->
+                <ol class="flex justify-center gap-1 text-xs font-medium">
+                  <!-- 上一页按钮 -->
+                  <li>
+                    <button
+                        @click="goToPage(currentPage - 1)"
+                        class="inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
+                        :disabled="currentPage === 1"
+                    >
+                      <span class="sr-only">Prev Page</span>
+                      <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="size-3"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                      >
+                        <path
+                            fill-rule="evenodd"
+                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                            clip-rule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </li>
+
+                  <!-- 页码按钮 -->
+                  <li v-for="page in totalPages" :key="page">
+                    <button
+                        @click="goToPage(page)"
+                        :class="[
+            'block size-8 rounded border text-center leading-8',
+            page === currentPage ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white text-gray-900 border-gray-100'
+          ]"
+                    >
+                      {{ page }}
+                    </button>
+                  </li>
+
+                  <!-- 下一页按钮 -->
+                  <li>
+                    <button
+                        @click="goToPage(currentPage + 1)"
+                        class="inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
+                        :disabled="currentPage === totalPages"
+                    >
+                      <span class="sr-only">Next Page</span>
+                      <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="size-3"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                      >
+                        <path
+                            fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </li>
+                </ol>
               </div>
             </div>
           </div>
@@ -262,7 +399,7 @@ const goToArticleListByTag = (item) => {
               <h2 class="text-xl font-semibold">用户名</h2>
               <p class="text-sm text-gray-700">只为在茫茫人海中有自己的小天空！</p>
               <div class="mt-4 flex justify-center space-x-6">
-              <a class="text-gray-700 hover:text-gray-200" href="#"> 文章</a>
+                <a class="text-gray-700 hover:text-gray-200" href="#"> 文章</a>
                 <a class="text-gray-700 hover:text-gray-200" href="#">标签</a>
               </div>
               <div class="mt-4 flex justify-center space-x-6">
@@ -318,7 +455,7 @@ const goToArticleListByTag = (item) => {
                   :key="index"
                   class="text-gray-700 hover:text-gray-500"
                   @click="goToArticleListByTag(item)">
-                {{item.tname}}
+                {{ item.tname }}
               </button>
             </div>
           </div>
@@ -326,5 +463,35 @@ const goToArticleListByTag = (item) => {
       </div>
     </div>
   </div>
+  <a-modal v-model:open="ReplyDiaLog" title="回复" width="600px ">
+    <a-form
+        class="p-4 grid grid-cols-4 justify-items-center w-full"
+    >
+      <a-form-item class="col-span-4 w-full">
+        <a-input  v-model:value="getAddReplyVO.cname" placeholder="昵称">
+          <template #prefix>
+            <UserOutlined style="color: rgba(0, 0, 0, 0.25)"/>
+          </template>
+        </a-input>
+      </a-form-item>
+      <a-form-item class="col-span-4 w-full">
+        <a-input v-model:value="getAddReplyVO.email" placeholder="邮箱">
+          <template #prefix>
+            <LockOutlined style="color: rgba(0, 0, 0, 0.25)"/>
+          </template>
+        </a-input>
+      </a-form-item>
+      <a-form-item class="col-span-4 w-full">
+        <a-textarea v-model:value="getAddReplyVO.cdesc" placeholder="回复内容"/>
+      </a-form-item>
+    </a-form>
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <a-button @click="ReplyDiaLog = false">取消</a-button>
+        <a-button class="bg-sky-500" type="primary" @click="AddReply">提交</a-button>
+      </div>
+    </template>
+  </a-modal>
+
 </template>
 

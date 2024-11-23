@@ -63,7 +63,6 @@ export let addReplyVO = {
     email:'',
     cdesc:'',
     replyid:''
-
 }
 
 export let deleteCommentVO = {
