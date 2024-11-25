@@ -18,12 +18,12 @@ const router = createRouter({
             {   //登录路由
                 path:'/login',
                 name:'Login',
-                component:() => import('@/views/AuthPage/Login.vue')
+                component:() => import('@/views/authPage/Login.vue')
             },
             {   //注册路由
                 path:'/register',
                 name:'Register',
-                component:() => import('@/views/AuthPage/Register.vue')
+                component:() => import('@/views/authPage/Register.vue')
             },
             {
                 //博客页面相关路由
@@ -34,25 +34,25 @@ const router = createRouter({
             {
                 path:'/friend',
                 name:'Friend',
-                component:() => import('@/views/FriendPage/FriendFrame.vue')
+                component:() => import('@/views/friendPage/FriendFrame.vue')
             },
             {
                 //标签页相关路由
                 path:'/tag',
                 name:'Tag',
-                component:() => import('@/views/TagPage/TagFrame.vue')
+                component:() => import('@/views/tagPage/TagFrame.vue')
             },
             {
                 //文章详情页面相关路由
                 path: '/article/:aid',
                 name: 'ArticleDetail',
-                component:() => import('@/views/ArticlePage/ArticleFrame.vue'),
+                component:() => import('@/views/articlePage/ArticleFrame.vue'),
             },
             {
                 //根据标签获取文章页面相关路由
                 path:'/articleList/:tname',
                 name:'ArticleListByTag',
-                component:()=> import('@/views/getArticlesByTagPage/getArticlesByTagFrame.vue')
+                component:()=> import('@/views/getArticlesByTagPage/GetArticlesByTagFrame.vue')
             }
     ]
 })

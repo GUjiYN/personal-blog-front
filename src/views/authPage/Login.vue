@@ -87,6 +87,13 @@ async function UserLogin() {
       message.success('你好 ' + getReturnData.data.user.username + ' 用户')
       await router.push({name: 'Blog'});
       }
+  switch (getReturnData.data.user.role) {
+    case "super-admin":
+      router.push({name: 'Admin'});
+      break;
+    case "user":
+      router.push({name: 'Admin'});
+  }
 }
 
 </script>
