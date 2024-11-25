@@ -1,12 +1,6 @@
-<style>
-
-
-
-</style>
-
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { SearchOutlined, LinkOutlined, MenuOutlined, HomeOutlined, DownOutlined } from "@ant-design/icons-vue";
+import { SearchOutlined, LinkOutlined, MenuOutlined, HomeOutlined, DownOutlined, EditOutlined, PlusOutlined} from "@ant-design/icons-vue";
 import router from "@/router/index.js";
 import {searchArticleDO} from "@/assets/js/DoModel.js";
 import {searchArticleVO} from "@/assets/js/VoModel.js";
@@ -16,16 +10,15 @@ import {searchArticleApi} from "@/api/ArticleApi.js";
 const searchArticleList = ref(searchArticleDO); // 使用 articleListDO 存储文章列表
 const articleList = ref(searchArticleVO);
 const dialogSearch = ref(false);
+const dialogCreateArticle = ref(false);
+
 
 const closeDialogSearch = () => {
   dialogSearch.value = false;
   articleList.value.keyword = ''; // 清空输入框内容
   searchArticleList.value = [];   // 清空列表内容
 };
-
 const showDialogSearch = () => dialogSearch.value = true;
-
-
 const DialogSearch = async () => {
   try {
     const result = await searchArticleApi(articleList.value); // 传递 VO 对象
@@ -36,6 +29,14 @@ const DialogSearch = async () => {
     console.error('查询文章时出错：', error);
   }
 };
+
+
+const closeDialogCreateArticle = () => {
+  dialogCreateArticle.value = false;
+}
+const showDialogCreateArticle = async () => {
+  dialogCreateArticle.value = true;
+}
 
 
 // 输入框变化事件
@@ -233,6 +234,14 @@ const typeEffect = () => {
                 </a-menu>
               </template>
             </a-dropdown>
+            <button
+                :class="['flex gap-1 items-center space-x-1 transition-all duration-300',isScrolled ? 'text-gray-700'
+                : 'text-white']"
+                @click="showDialogCreateArticle "
+            >
+              <EditOutlined />
+              <span>创建博客</span>
+            </button>
             <button @click="toggleSearch" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" class="flex gap-1 items-center space-x-1">
               <MenuOutlined />
               <span>关于我</span>
@@ -271,7 +280,6 @@ const typeEffect = () => {
         </a-input>
       </a-form-item>
     </a-form>
-
     <!-- 文章列表 -->
     <a-list
         v-if="searchArticleList.length > 0"
@@ -293,7 +301,6 @@ const typeEffect = () => {
     <template v-else>
       <p class="text-gray-500 text-center mt-4">暂无数据</p>
     </template>
-
     <template #footer>
       <a-button @click="closeDialogSearch">取消</a-button>
       <a-button
@@ -301,6 +308,56 @@ const typeEffect = () => {
           type="primary"
           @click="DialogSearch"
       >查询</a-button>
+    </template>
+  </a-modal>
+
+  <!--创建博客对话框-->
+  <a-modal v-model:open="dialogCreateArticle" title="创建文章">
+    <a-form
+        class="p-3  justify-center"
+        name="basic"
+        autocomplete="off"
+    >
+      <a-form-item
+          label="标题"
+          name="title"
+          :rules="[{ required: true, message: '文章标题不能为空!' }]"
+      >
+        <a-input />
+      </a-form-item>
+
+      <a-form-item
+          label="内容"
+          name="description"
+          :rules="[{ required: true, message: '文章内容不能为空!' }]"
+      >
+      <a-textarea></a-textarea>
+      </a-form-item>
+      <a-form-item
+          label="标签"
+          name="tags"
+          :rules="[{ required: true, message: '文章标签不能为空!' }]"
+      >
+        <a-input />
+      </a-form-item>
+      <a-form-item label="图片">
+        <a-upload action="/upload.do" list-type="picture-card">
+          <div>
+            <PlusOutlined />
+            <div style="margin-top: 8px">Upload</div>
+          </div>
+        </a-upload>
+      </a-form-item>
+    </a-form>
+    <template #footer>
+      <a-button @click="closeDialogCreateArticle">取消</a-button>
+      <a-button
+          class="bg-aspargus mt-4"
+          type="primary"
+
+      >
+        创建
+      </a-button>
     </template>
   </a-modal>
 
