@@ -32,12 +32,17 @@ const router = createRouter({
                 component:() => import('@/views/blogPage/BlogFrame.vue'),
             },
             {
+                path:'/admin/blog',
+                name:'AdminBlog',
+                component:() => import('@/views/adminBlogPage/AdminBlogFrame.vue')
+            },
+            {
                 path:'/friend',
                 name:'Friend',
                 component:() => import('@/views/friendPage/FriendFrame.vue')
             },
             {
-                //标签页相关路由
+                //标签相关路由
                 path:'/tag',
                 name:'Tag',
                 component:() => import('@/views/tagPage/TagFrame.vue')

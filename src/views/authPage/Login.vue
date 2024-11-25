@@ -65,9 +65,9 @@
 
 
 <script setup>
-import {onMounted, reactive, ref} from 'vue';
+import {reactive} from 'vue';
 import {message} from "ant-design-vue";
-import {KeyOutlined, UserOutlined, LockOutlined} from "@ant-design/icons-vue";
+import {UserOutlined, LockOutlined} from "@ant-design/icons-vue";
 import router from "@/router/index.js";
 import {loginVO} from "@/assets/js/VoModel.js";
 import {loginApi} from "@/api/AuthApi.js";
@@ -84,16 +84,14 @@ async function UserLogin() {
     case "Success":
       localStorage.setItem("AuthorizationToken", "Bearer " + getReturnData.data.token);
       localStorage.setItem("X-Auth-UUID", getReturnData.data.user.uuid);
-      message.success('你好 ' + getReturnData.data.user.username + ' 用户')
-      await router.push({name: 'Blog'});
+      if(getReturnData.data.user.role === "super_admin"){
+        await router.push({name:'AdminBlog'});
+        message.success('你好 ' + getReturnData.data.user.username)
+      } else if (getReturnData.data.user.role === "user"){
+        await router.push({name:'Blog'});
+        message.success('你好 ' + getReturnData.data.user.username)
       }
-  switch (getReturnData.data.user.role) {
-    case "super-admin":
-      router.push({name: 'Admin'});
-      break;
-    case "user":
-      router.push({name: 'Admin'});
-  }
+      }
 }
 
 </script>
