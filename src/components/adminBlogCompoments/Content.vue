@@ -16,20 +16,18 @@ const currentPage = ref(1); // 当前页码
 const pageSize = ref(5); // 每页显示的文章数
 articleListVO.page = currentPage;
 articleListVO.size = pageSize;
-
-// 计算总页数
 const totalPages = computed(() => Math.ceil(totalArticles.value / pageSize.value));
-
 const getTagList = ref(tagListDO);
 const tagList = ref(tagListVO);
 // 用于存储每个标签悬浮时的随机颜色
 const hoverColors = ref([]);
 
 
+
 // 跳转到文章详情页
 const goToDetail = (item) => {
   console.log(item.aid);
-  router.push('/article/' + item.aid)
+  router.push('/admin-article/' + item.aid)
 };
 
 const formatDate = (dateString) => {
@@ -114,7 +112,6 @@ const goToArticleListByTag = (item) => {
                       发表于{{ formatDate(item.createdAt) }}
                     </p>
                   </div>
-
                   <p  :class="{'line-clamp-3': !showFullContent}" >{{ item.description }}</p>
                 </div>
               </div>

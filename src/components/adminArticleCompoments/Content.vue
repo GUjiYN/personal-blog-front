@@ -1,0 +1,581 @@
+<script setup>
+import {computed, onMounted, ref} from 'vue';
+import {createArticleApi, getArticleDetailsApi} from "@/api/ArticleApi.js";
+import {
+  addCommentDO,
+  articleDetailsDO,
+  commentListDO,
+  createArticleDO,
+  tagListDO,
+  updateArticleDO
+} from "@/assets/js/DoModel.js";
+import {useRoute} from "vue-router";
+import {
+  LockOutlined, PlusOutlined,
+  QqOutlined,
+  ScissorOutlined,
+  TagOutlined,
+  UserOutlined
+} from "@ant-design/icons-vue";
+import {commentListVO, createArticleVO, tagListVO, updateArticleVO} from "@/assets/js/VoModel.js";
+import {getTagListApi} from "@/api/TagApi.js";
+import {addCommentApi, getCommentListApi} from "@/api/CommentApi.js";
+import {marked} from 'marked';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import {message} from "ant-design-vue";
+import router from "@/router/index.js";
+import {addReplyApi} from "@/api/ReplyApi.js";
+
+
+const getTagList = ref(tagListDO);
+const tagList = ref(tagListVO);
+const getArticleDetails = ref(null);
+const route = useRoute();
+const aid = route.params.aid;
+const getCommentList = ref(commentListDO);
+const commentList = ref(commentListVO);
+const getAddCommentVO = ref({
+  aid: route.params.aid, // 文章ID
+  cname: '', // 评论者名称
+  email:'',
+  cdesc: ''                      // 评论内容
+});
+commentListVO.aid = route.params.aid;
+const ReplyDiaLog = ref(false);
+const getAddReplyVO = ref({
+  aid: route.params.aid,
+  cname:'',
+  email:'',
+  cdesc:'',
+  replyid:'',
+});
+const totalComments = ref(0); // 总文章数
+const currentPage = ref(1); // 当前页码
+const pageSize = ref(5); // 每页显示的文章数
+commentListVO.page = currentPage;
+commentListVO.size = pageSize;
+const dialogUpdateArticle = ref(false);
+const updateArticleD  = ref(updateArticleDO);
+const updateArticleV = ref(updateArticleVO);
+
+
+const closeDialogUpdateArticle = () => {
+  dialogUpdateArticle.value = false;
+
+}
+const showDialogUpdateArticle = async () => {
+  dialogUpdateArticle.value = true;
+}
+const UpdateArticle = async () => {
+  try {
+    const result4 = await createArticleApi(updateArticleV.value);
+    console.log(result2);
+    updateArticleD.value = result4.data;
+  } catch (error) {
+    console.error('更新文章时出错',error);
+  }
+}
+
+
+// 计算总页数
+const totalPages = computed(() => Math.ceil(totalComments.value / pageSize.value));
+
+const GetArticleDetails = async () => {
+  try {
+    const result1 = await getArticleDetailsApi(aid);
+    getArticleDetails.value = result1.data || articleDetailsDO;
+  } catch (error) {
+    console.error("数据加载出错：", error);
+  }
+}
+
+const GetTagList = async () => {
+  try {
+    const result2 = await getTagListApi(tagList.value);
+    getTagList.value = result2.data.records; // 确保赋值为 records 数组
+  } catch (error) {
+    console.error("数据加载出错：", error);
+  }
+}
+
+const GetCommentList = async () => {
+  try {
+    const result3 = await getCommentListApi(commentList.value);
+    getCommentList.value = result3.data.records.map(comment => ({
+      ...comment,
+      replies: comment.replies || [],
+    }));
+    totalComments.value = result3.data.total; // 更新总评论数
+    console.log("1111", getCommentList);
+  } catch (error) {
+    console.error("数据加载出错：", error);
+  }
+}
+
+/**
+ * 获取文章详情
+ * 获取标签列表
+ * 获取评论列表
+ */
+onMounted(() => {
+  GetArticleDetails();
+  GetTagList();
+  GetCommentList();
+});
+
+
+// 跳转到指定页码
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page; // 更新当前页码
+    GetCommentList(); // 加载新页数据
+  }
+};
+
+/**
+ * 发布评论
+ */
+const AddComment = async () => {
+  console.log('提交的评论数据：', getAddCommentVO.value);
+  try {
+    // 发送评论请求
+    const result = await addCommentApi(getAddCommentVO.value);
+
+    if (result.output === "Success") {
+      message.success("评论发布成功");
+
+      // 将新评论直接添加到评论列表
+      const newComment = {
+        aid: getAddCommentVO.value.aid,
+        cname: getAddCommentVO.value.cname,
+        cdesc: getAddCommentVO.value.cdesc,
+        createdAt: new Date().toISOString() // 设置评论的时间戳
+      };
+
+      // 将新评论插入到评论列表的开头
+      getCommentList.value.unshift(newComment);
+
+      // 清空输入框的内容
+      getAddCommentVO.value.cname = '';
+      getAddCommentVO.value.cdesc = '';
+    }
+  } catch (error) {
+    console.error("评论发布失败：", error);
+    message.error("评论发布失败，请稍后重试！");
+  }
+};
+
+const showReplyDiaLog = (replyId) => {
+  if (!replyId) {
+    console.error("回复ID为空，无法打开回复框！");
+    return;
+  }
+  getAddReplyVO.value.replyid = replyId; // 将评论的ID赋值给回复ID
+  ReplyDiaLog.value = true; // 打开对话框
+};
+
+
+const AddReply = async () => {
+  console.log('回复内容:', getAddReplyVO.value);
+
+  try {
+    const result = await addReplyApi(getAddReplyVO.value);
+    if (result.output === "Success") {
+      message.success("回复发布成功");
+
+      // 创建新的回复对象
+      const newReply = {
+        cname: getAddReplyVO.value.cname,
+        cdesc: getAddReplyVO.value.cdesc,
+        createdAt: new Date().toISOString(),
+        replyid:getAddReplyVO.value.replyid
+      };
+
+      // 找到对应的评论并添加回复
+      const targetComment = getCommentList.value.find(comment => comment.cid === getAddReplyVO.value.replyid);
+      if (targetComment) {
+        targetComment.replies.push(newReply);
+      }
+
+      // 清空回复内容
+      getAddReplyVO.value.cname = '';
+      getAddReplyVO.value.email = '';
+      getAddReplyVO.value.cdesc = '';
+
+      ReplyDiaLog.value = false; // 关闭对话框
+    }
+  } catch (error) {
+    console.error("回复发布失败：", error);
+    message.error("回复发布失败，请稍后重试！");
+  }
+};
+
+/**
+ * 时间格式化
+ * @param dateString
+ * @return {string}
+ */
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false // 使用 24 小时制
+  });
+};
+
+
+// 使用 computed 属性将 Markdown 转换为 HTML
+const articleContentHtml = computed(() => {
+  return getArticleDetails.value ? marked(getArticleDetails.value.description) : '';
+});
+
+dayjs.extend(relativeTime);
+
+
+const goToArticleListByTag = (item) => {
+  console.log(item.tname);
+  router.push('/articleList/' + item.tname);
+}
+</script>
+
+
+<template>
+  <div class="relative flex justify-center min-h-screen  bg-cover bg-fixed bg-[url('@/assets/images/img5.jpg')]">
+    <div class="relative">
+      <div class="grid grid-cols-12 container p-48 gap-6">
+        <div class="col-span-9">
+          <div class="grid grid-cols-1 gap-6">
+            <div class="bg-gray-100 rounded-lg p-4">
+              <div v-if="getArticleDetails && getArticleDetails.title">
+                <h1>{{ getArticleDetails.title }}</h1>
+                <!-- 使用 v-html 渲染 Markdown 转换后的 HTML -->
+                <div v-html="articleContentHtml">
+
+                </div>
+                <small>发布于：{{ getArticleDetails.createdAt }}</small>
+              </div>
+              <div v-else>
+                <p>加载文章内容中...</p>
+              </div>
+              <a-divider orientation="left" style="border-top-color: rgb(12,12,12); color: rgb(2,2,2);">
+                <ScissorOutlined/>
+              </a-divider>
+              <div class="bg-gray-200 text-gray-300 p-6 rounded-lg space-y-6">
+                <a-form
+                    :label-col="{ span: 8 }"
+                    :wrapper-col="{ span: 16 }"
+                    autocomplete="off"
+                    layout="inline"
+                    name="basic"
+                >
+                  <a-form-item
+                      label="昵称"
+                      name="username"
+                  >
+                    <a-input v-model:value="getAddCommentVO.cname"
+                             class="bg-gray-300 border border-gray-300 rounded-lg"/>
+                  </a-form-item>
+
+                  <a-form-item
+                      label="邮箱"
+                      name="email"
+                  >
+                    <a-input class="bg-gray-300 border border-gray-300 rounded-lg"/>
+                  </a-form-item>
+                </a-form>
+                <div>
+                  <a-textarea
+                      v-model:value="getAddCommentVO.cdesc"
+                      :rows="4"
+                      class="w-full bg-gray-300 text-gray-200 border border-gray-300 rounded-md p-3
+                      focus:outline-none focus:border-blue-500"
+                      placeholder="欢迎评论"
+                  />
+                </div>
+                <div class="flex justify-between items-center">
+                  <div class="flex space-x-3 text-gray-400 text-lg">
+                    <span class="cursor-pointer hover:text-gray-200">M↓</span>
+                    <span class="cursor-pointer hover:text-gray-200">GIF</span>
+                    <span class="cursor-pointer hover:text-gray-200">IMG</span>
+                  </div>
+                  <div class="flex items-center space-x-3">
+                    <span class="text-gray-500"> 字</span>
+                    <button class="bg-gray-300 py-2 px-4 rounded-lg text-gray-500 hover:bg-gray-400"
+                            @click="router.replace({name:'Login'})">登录
+                    </button>
+                    <button
+                        class="bg-sky-500 py-2 px-4 rounded-lg text-gray-100 hover:bg-sky-400 hover:text-gray-200"
+                        @click="AddComment">
+                      提交
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <a-comment
+                      v-for="(item, index) in getCommentList"
+                      :key="index"
+                  >
+                    <template #actions>
+                      <button key="comment-basic-reply-to" @click="showReplyDiaLog(item.cid)">回复</button>
+                    </template>
+                    <template #author><a>{{ item.cname }}</a></template>
+                    <template #avatar>
+                      <a-avatar src="https://joeschmoe.io/api/v1/random" alt="Han Solo" />
+                    </template>
+                    <template #content><p>{{ item.cdesc }}</p></template>
+                    <template #datetime>
+                      <a-tooltip>
+                        <span>{{ formatDate(item.createdAt) }}</span>
+                      </a-tooltip>
+                    </template>
+
+                    <!-- 显示回复 -->
+                    <div v-if="item.replies && item.replies.length > 0" class="pl-8">
+                      <a-comment
+                          v-for="(reply, replyIndex) in item.replies"
+                          :key="replyIndex"
+                      >
+                        <template #author><a>{{ reply.cname }}</a></template>
+                        <template #avatar>
+                          <a-avatar src="https://joeschmoe.io/api/v1/random" alt="Han Solo" />
+                        </template>
+                        <template #content><p>{{ reply.cdesc }}</p></template>
+                        <template #datetime>
+                          <a-tooltip>
+                            <span>{{ formatDate(reply.createdAt) }}</span>
+                          </a-tooltip>
+                        </template>
+                      </a-comment>
+                    </div>
+                  </a-comment>
+                </div>
+              </div>
+              <div class="mt-4">
+                <!-- 分页组件 -->
+                <ol class="flex justify-center gap-1 text-xs font-medium">
+                  <!-- 上一页按钮 -->
+                  <li>
+                    <button
+                        @click="goToPage(currentPage - 1)"
+                        class="inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
+                        :disabled="currentPage === 1"
+                    >
+                      <span class="sr-only">Prev Page</span>
+                      <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="size-3"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                      >
+                        <path
+                            fill-rule="evenodd"
+                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                            clip-rule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </li>
+
+                  <!-- 页码按钮 -->
+                  <li v-for="page in totalPages" :key="page">
+                    <button
+                        @click="goToPage(page)"
+                        :class="[
+            'block size-8 rounded border text-center leading-8',
+            page === currentPage ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white text-gray-900 border-gray-100'
+          ]"
+                    >
+                      {{ page }}
+                    </button>
+                  </li>
+
+                  <!-- 下一页按钮 -->
+                  <li>
+                    <button
+                        @click="goToPage(currentPage + 1)"
+                        class="inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
+                        :disabled="currentPage === totalPages"
+                    >
+                      <span class="sr-only">Next Page</span>
+                      <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="size-3"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                      >
+                        <path
+                            fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </li>
+                </ol>
+              </div>
+              <div class="flex items-center space-x-3">
+                <a-button type="primary" danger ghost>删除文章</a-button>
+                <button
+                    @click="showDialogUpdateArticle"
+                    class="bg-sky-500 py-2 px-4 rounded-lg text-gray-100 hover:bg-sky-400 hover:text-gray-200">
+                  修改文章
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-span-3 flex flex-col gap-6">
+          <div class="bg-white p-4 rounded-lg">
+            <div class="mb-6 text-center rounded-lg">
+              <img alt="Profile Image" class="w-24 h-24 rounded-full mx-auto mb-4" src="@/assets/images/img4.jpg"/>
+              <h2 class="text-xl font-semibold">用户名</h2>
+              <p class="text-sm text-gray-700">只为在茫茫人海中有自己的小天空！</p>
+              <div class="mt-4 flex justify-center space-x-6">
+                <a class="text-gray-700 hover:text-gray-200" href="#"> 文章</a>
+                <a class="text-gray-700 hover:text-gray-200" href="#">标签</a>
+              </div>
+              <div class="mt-4 flex justify-center space-x-6">
+                <button class="bg-gray-200 p-4 flex gap-1 items-center space-x-1 text-gray-700 hover:text-white">
+                  <UserOutlined/>
+                  <span class="text-gray-700">关于我的一些事?</span>
+                </button>
+              </div>
+              <div class="mt-4 flex justify-center space-x-6">
+                <svg aria-hidden="true" class="w-6 h-6 text-gray-800 dark:text-white" fill="currentColor"
+                     height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                  <path clip-rule="evenodd"
+                        d="M12.006 2a9.847 9.847 0 0 0-6.484 2.44 10.32 10.32 0 0 0-3.393 6.17 10.48 10.48 0 0 0 1.317 6.955 10.045 10.045 0 0 0 5.4 4.418c.504.095.683-.223.683-.494 0-.245-.01-1.052-.014-1.908-2.78.62-3.366-1.21-3.366-1.21a2.711 2.711 0 0 0-1.11-1.5c-.907-.637.07-.621.07-.621.317.044.62.163.885.346.266.183.487.426.647.71.135.253.318.476.538.655a2.079 2.079 0 0 0 2.37.196c.045-.52.27-1.006.635-1.37-2.219-.259-4.554-1.138-4.554-5.07a4.022 4.022 0 0 1 1.031-2.75 3.77 3.77 0 0 1 .096-2.713s.839-.275 2.749 1.05a9.26 9.26 0 0 1 5.004 0c1.906-1.325 2.74-1.05 2.74-1.05.37.858.406 1.828.101 2.713a4.017 4.017 0 0 1 1.029 2.75c0 3.939-2.339 4.805-4.564 5.058a2.471 2.471 0 0 1 .679 1.897c0 1.372-.012 2.477-.012 2.814 0 .272.18.592.687.492a10.05 10.05 0 0 0 5.388-4.421 10.473 10.473 0 0 0 1.313-6.948 10.32 10.32 0 0 0-3.39-6.165A9.847 9.847 0 0 0 12.007 2Z"
+                        fill-rule="evenodd"/>
+                </svg>
+
+                <QqOutlined class="text-gray-800 text-2xl"/>
+                <div>
+                  <svg aria-hidden="true" class="w-6 h-6 text-gray-800" fill="none"
+                       height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M20 16v-4a8 8 0 1 0-16 0v4m16 0v2a2 2 0 0 1-2 2h-2v-6h2a2 2 0 0 1 2 2ZM4 16v2a2 2 0 0 0
+                          2 2h2v-6H6a2 2 0 0 0-2 2Z" stroke="currentColor" stroke-linejoin="round"
+                          stroke-width="2"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 bg-white rounded-lg text-gray-700">
+            <h3 class="text-lg font-bold">公告</h3>
+            <p class="">一名忙碌的程序员</p>
+          </div>
+          <div class="p-4 bg-white rounded-lg">
+            <div class="text-gray-700 bg-gray-200 p-4 rounded-lg">
+              <h3 class="text-lg font-bold mb-4">最新文章</h3>
+              <ul class="space-y-2">
+                <li><a class="hover:underline" href="#">Java 库上传 Maven 中央仓库</a></li>
+                <li><a class="hover:underline" href="#">存活证明</a></li>
+                <li><a class="hover:underline" href="#">安卓开发学习记录 [一]</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="p-4 bg-white rounded-lg flex flex-col text-gray-700">
+            <div class="flex gap-1  mb-4">
+              <TagOutlined/>
+              <span>标签</span>
+            </div>
+            <div class="grid grid-cols-3 gap-y-2">
+              <button
+                  v-for="(item, index) in getTagList"
+                  :key="index"
+                  class="text-gray-700 hover:text-gray-500"
+                  @click="goToArticleListByTag(item)">
+                {{ item.tname }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--增加回复对话框-->
+  <a-modal v-model:open="ReplyDiaLog" title="回复" width="600px ">
+    <a-form
+        class="p-4 grid grid-cols-4 justify-items-center w-full"
+    >
+      <a-form-item class="col-span-4 w-full">
+        <a-input  v-model:value="getAddReplyVO.cname" placeholder="昵称">
+          <template #prefix>
+            <UserOutlined style="color: rgba(0, 0, 0, 0.25)"/>
+          </template>
+        </a-input>
+      </a-form-item>
+      <a-form-item class="col-span-4 w-full">
+        <a-input v-model:value="getAddReplyVO.email" placeholder="邮箱">
+          <template #prefix>
+            <LockOutlined style="color: rgba(0, 0, 0, 0.25)"/>
+          </template>
+        </a-input>
+      </a-form-item>
+      <a-form-item class="col-span-4 w-full">
+        <a-textarea v-model:value="getAddReplyVO.cdesc" placeholder="回复内容"/>
+      </a-form-item>
+    </a-form>
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <a-button @click="ReplyDiaLog = false">取消</a-button>
+        <a-button class="bg-sky-500" type="primary" @click="AddReply">提交</a-button>
+      </div>
+    </template>
+  </a-modal>
+
+  <!--修改博客对话框-->
+  <a-modal v-model:open="dialogUpdateArticle" title="创建文章">
+    <a-form
+        class="p-3  justify-center"
+    >
+      <a-form-item
+          label="标题"
+          :rules="[{ required: true }]"
+      >
+        <a-input v-model:value="updateArticleV.title"/>
+      </a-form-item>
+      <a-form-item
+          label="内容"
+          :rules="[{ required: true, message: '文章内容不能为空!' }]"
+      >
+        <a-textarea v-model:value="updateArticleV.description"></a-textarea>
+      </a-form-item>
+      <a-form-item
+          label="标签"
+          :rules="[{ required: true}]"
+      >
+        <a-input v-model:value="updateArticleV.tags"/>
+      </a-form-item>
+      <a-form-item label="图片">
+        <a-upload action="/upload.do" list-type="picture-card">
+          <div>
+            <PlusOutlined />
+            <div style="margin-top: 8px">Upload</div>
+          </div>
+        </a-upload>
+      </a-form-item>
+    </a-form>
+    <template #footer>
+      <a-button @click="closeDialogUpdateArticle">取消</a-button>
+      <a-button
+          class="bg-aspargus mt-4"
+          type="primary"
+          @click="UpdateArticle"
+      >
+        创建
+      </a-button>
+    </template>
+  </a-modal>
+
+</template>
+

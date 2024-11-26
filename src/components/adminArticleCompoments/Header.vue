@@ -1,17 +1,21 @@
+<style>
+
+
+
+</style>
+
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { SearchOutlined, LinkOutlined, MenuOutlined, HomeOutlined, DownOutlined, EditOutlined, PlusOutlined} from "@ant-design/icons-vue";
+import { SearchOutlined, LinkOutlined, MenuOutlined, HomeOutlined, DownOutlined } from "@ant-design/icons-vue";
 import router from "@/router/index.js";
-import {createArticleDO, searchArticleDO} from "@/assets/js/DoModel.js";
-import {createArticleVO, searchArticleVO} from "@/assets/js/VoModel.js";
-import {createArticleApi, searchArticleApi} from "@/api/ArticleApi.js";
+import {searchArticleDO} from "@/assets/js/DoModel.js";
+import {searchArticleVO} from "@/assets/js/VoModel.js";
+import {searchArticleApi} from "@/api/ArticleApi.js";
+
 
 const searchArticleList = ref(searchArticleDO); // 使用 articleListDO 存储文章列表
 const articleList = ref(searchArticleVO);
 const dialogSearch = ref(false);
-const dialogCreateArticle = ref(false);
-const createArticleD  = ref(createArticleDO);
-const createArticleV = ref(createArticleVO);
 
 const closeDialogSearch = () => {
   dialogSearch.value = false;
@@ -20,43 +24,18 @@ const closeDialogSearch = () => {
 };
 
 const showDialogSearch = () => dialogSearch.value = true;
+
+
 const DialogSearch = async () => {
   try {
-    const result1 = await searchArticleApi(articleList.value); // 传递 VO 对象
-    searchArticleList.value = result1.data.records || [];
+    const result = await searchArticleApi(articleList.value); // 传递 VO 对象
+    searchArticleList.value = result.data.records || [];
     console.log('文章', searchArticleList.value);
     console.log('查询成功', searchArticleList.value);
   } catch (error) {
     console.error('查询文章时出错：', error);
   }
 };
-
-
-const closeDialogCreateArticle = () => {
-  dialogCreateArticle.value = false;
-
-}
-const showDialogCreateArticle = async () => {
-  dialogCreateArticle.value = true;
-}
-const CreateArticle = async () => {
-  try {
-    const payload = {
-      ...createArticleV.value,
-      tags: Array.isArray(createArticleV.value.tags)
-          ? createArticleV.value.tags
-          : createArticleV.value.tags.split(',').map(tag => tag.trim()), // 确保 tags 是数组
-    };
-    console.log(localStorage.getItem("AuthorizationToken"));
-    const result2 = await createArticleApi(payload);
-    console.log(result2);
-    createArticleD.value = result2.data;
-    dialogCreateArticle.value = false; // 成功后关闭对话框
-  } catch (error) {
-    console.error('创建文章时出错', error);
-  }
-};
-
 
 
 // 输入框变化事件
@@ -254,14 +233,6 @@ const typeEffect = () => {
                 </a-menu>
               </template>
             </a-dropdown>
-            <button
-                :class="['flex gap-1 items-center space-x-1 transition-all duration-300',isScrolled ? 'text-gray-700'
-                : 'text-white']"
-                @click="showDialogCreateArticle "
-            >
-              <EditOutlined />
-              <span>创建博客</span>
-            </button>
             <button @click="toggleSearch" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" class="flex gap-1 items-center space-x-1">
               <MenuOutlined />
               <span>关于我</span>
@@ -282,8 +253,8 @@ const typeEffect = () => {
       </div>
     </div>
   </div>
-    <!--查询文章对话框-->
-    <!-- 搜索对话框 -->
+  <!--查询文章对话框-->
+  <!-- 搜索对话框 -->
   <a-modal v-model:open="dialogSearch" class="w-48" title="搜索">
     <!-- 搜索输入框 -->
     <a-form class="p-4 grid justify-center">
@@ -294,12 +265,13 @@ const typeEffect = () => {
             placeholder="请输入文章关键字..."
             @input="handleInputChange"
         >
-        <template #prefix>
-          <SearchOutlined />
-        </template>
+          <template #prefix>
+            <SearchOutlined />
+          </template>
         </a-input>
       </a-form-item>
     </a-form>
+
     <!-- 文章列表 -->
     <a-list
         v-if="searchArticleList.length > 0"
@@ -321,6 +293,7 @@ const typeEffect = () => {
     <template v-else>
       <p class="text-gray-500 text-center mt-4">暂无数据</p>
     </template>
+
     <template #footer>
       <a-button @click="closeDialogSearch">取消</a-button>
       <a-button
@@ -328,55 +301,6 @@ const typeEffect = () => {
           type="primary"
           @click="DialogSearch"
       >查询</a-button>
-    </template>
-  </a-modal>
-
-  <!--创建博客对话框-->
-  <a-modal v-model:open="dialogCreateArticle" title="创建文章">
-    <a-form
-        class="p-3  justify-center"
-    >
-      <a-form-item
-          label="标题"
-          :rules="[{ required: true }]"
-      >
-        <a-input v-model:value="createArticleV.title"/>
-      </a-form-item>
-      <a-form-item
-          label="内容"
-          :rules="[{ required: true, message: '文章内容不能为空!' }]"
-      >
-      <a-textarea v-model:value="createArticleV.description"></a-textarea>
-      </a-form-item>
-      <a-form-item
-          label="标签"
-          :rules="[{ required: true}]"
-      >
-        <a-select
-            mode="tags"
-            v-model:value="createArticleV.tags"
-            placeholder="请输入标签，按回车添加"
-            style="width: 100%;"
-        />
-      </a-form-item>
-      <a-form-item label="图片">
-        <a-upload action="/upload.do" list-type="picture-card">
-          <div>
-            <PlusOutlined />
-            <div style="margin-top: 8px">Upload</div>
-          </div>
-        </a-upload>
-      </a-form-item>
-    </a-form>
-    <template #footer>
-      <a-button @click="closeDialogCreateArticle">取消</a-button>
-      <a-button
-          class="bg-aspargus mt-4"
-          type="primary"
-          @click="CreateArticle"
-      >
-        创建
-      </a-button>
     </template>
   </a-modal>
 

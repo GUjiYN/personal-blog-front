@@ -32,7 +32,15 @@ export let searchArticleVO = {
     size: '',
 }
 
-export let addArticleVO = {
+export let createArticleVO = {
+    title:'',
+    description:'',
+    tags:'',
+    image:'',
+}
+
+export let updateArticleVO = {
+    aid:'',
     title:'',
     description:'',
     tags:'',

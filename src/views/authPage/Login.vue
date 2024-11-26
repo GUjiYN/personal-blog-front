@@ -79,10 +79,14 @@ async function UserLogin() {
     message.warn("账户密码不能为空")
     return;
   }
+  console.log(localStorage.getItem("AuthorizationToken"));
+
   const getReturnData = await loginApi(loginForm);
   switch (getReturnData.output) {
     case "Success":
-      localStorage.setItem("AuthorizationToken", "Bearer " + getReturnData.data.token);
+      const token = getReturnData.data.token;
+      localStorage.setItem("AuthorizationToken", token);
+      console.log("存储的 AuthorizationToken:", token); // 打印存储的 Token
       localStorage.setItem("X-Auth-UUID", getReturnData.data.user.uuid);
       if(getReturnData.data.user.role === "super_admin"){
         await router.push({name:'AdminBlog'});

@@ -54,6 +54,12 @@ const router = createRouter({
                 component:() => import('@/views/articlePage/ArticleFrame.vue'),
             },
             {
+                //管理员文章详情页面路由
+                path:'/admin-article/:aid',
+                name:'AdminArticleDetail',
+                component:() => import('@/views/adminArticlePage/AdminArticleFrame.vue')
+            },
+            {
                 //根据标签获取文章页面相关路由
                 path:'/articleList/:tname',
                 name:'ArticleListByTag',

@@ -122,7 +122,7 @@ const SearchArticle = (data) => {
 /**
  * 创建文章
  * @param data
- * @return {*}
+ * @return {Promise<AxiosResponse<any>> | *}
  * @constructor
  */
 const CreateArticle = (data) => {
@@ -131,6 +131,7 @@ const CreateArticle = (data) => {
         method: "post",
         data: data,
         headers: {
+            'Authorization': localStorage.getItem("AuthorizationToken"),
             'content-type': 'application/json;charset=utf-8',
             'X-Timestamp': new Date().getTime()
         }

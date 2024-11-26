@@ -88,7 +88,17 @@ export let searchArticleDO = {
 }
 
 
-export let addArticleDO = {
+export let createArticleDO = {
+    baseResponse,
+    data: {
+        title:'',
+        description:'',
+        tags:'',
+        image:'',
+    }
+}
+
+export let updateArticleDO = {
     baseResponse,
     data: {
         title:'',
