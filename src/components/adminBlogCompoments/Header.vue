@@ -52,6 +52,7 @@ const CreateArticle = async () => {
     console.log(result2);
     createArticleD.value = result2.data;
     dialogCreateArticle.value = false; // 成功后关闭对话框
+    window.location.reload();
   } catch (error) {
     console.error('创建文章时出错', error);
   }
