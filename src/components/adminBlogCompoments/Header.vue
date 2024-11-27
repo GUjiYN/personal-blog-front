@@ -32,6 +32,21 @@ const DialogSearch = async () => {
 };
 
 
+const fileList = ref([]); // 存储上传文件列表
+
+const handleImageChange = (info) => {
+  if (info.file.status === 'done') {
+    // 图片上传成功
+    const fileUrl = info.file.response.url; // 假设接口返回的图片 URL 存在 response.url 中
+    createArticleV.value.image = fileUrl; // 将图片 URL 存入 createArticleV 对象中
+    console.log('图片上传成功', fileUrl);
+  } else if (info.file.status === 'error') {
+    // 图片上传失败
+    console.error('图片上传失败');
+  }
+};
+
+
 const closeDialogCreateArticle = () => {
   dialogCreateArticle.value = false;
 
@@ -47,6 +62,7 @@ const CreateArticle = async () => {
           ? createArticleV.value.tags
           : createArticleV.value.tags.split(',').map(tag => tag.trim()), // 确保 tags 是数组
     };
+    console.log(payload);
     console.log(localStorage.getItem("AuthorizationToken"));
     const result2 = await createArticleApi(payload);
     console.log(result2);
@@ -332,7 +348,7 @@ const typeEffect = () => {
     </template>
   </a-modal>
 
-  <!--创建博客对话框-->
+  <!--创建文章对话框-->
   <a-modal v-model:open="dialogCreateArticle" title="创建文章">
     <a-form
         class="p-3  justify-center"
@@ -361,11 +377,17 @@ const typeEffect = () => {
         />
       </a-form-item>
       <a-form-item label="图片">
-        <a-upload action="/upload.do" list-type="picture-card">
-          <div>
-            <PlusOutlined />
-            <div style="margin-top: 8px">Upload</div>
-          </div>
+        <a-upload
+            action="/upload.do"
+        list-type="picture-card"
+        :on-change="handleImageChange"
+        :file-list="fileList"
+        :show-upload-list="false"
+        >
+        <div>
+          <PlusOutlined />
+          <div style="margin-top: 8px">Upload</div>
+        </div>
         </a-upload>
       </a-form-item>
     </a-form>

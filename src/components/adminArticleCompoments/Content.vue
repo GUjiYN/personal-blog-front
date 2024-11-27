@@ -1,6 +1,6 @@
 <script setup>
-import {computed, onMounted, ref} from 'vue';
-import {createArticleApi, getArticleDetailsApi} from "@/api/ArticleApi.js";
+import {computed, createVNode, onMounted, ref} from 'vue';
+import {createArticleApi, deleteArticleApi, getArticleDetailsApi} from "@/api/ArticleApi.js";
 import {
   addCommentDO,
   articleDetailsDO,
@@ -11,13 +11,14 @@ import {
 } from "@/assets/js/DoModel.js";
 import {useRoute} from "vue-router";
 import {
+  ExclamationCircleOutlined,
   LockOutlined, PlusOutlined,
   QqOutlined,
   ScissorOutlined,
   TagOutlined,
   UserOutlined
 } from "@ant-design/icons-vue";
-import {commentListVO, createArticleVO, tagListVO, updateArticleVO} from "@/assets/js/VoModel.js";
+import {commentListVO, createArticleVO, deleteArticleVO, tagListVO, updateArticleVO} from "@/assets/js/VoModel.js";
 import {getTagListApi} from "@/api/TagApi.js";
 import {addCommentApi, getCommentListApi} from "@/api/CommentApi.js";
 import {marked} from 'marked';
@@ -26,6 +27,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import {message} from "ant-design-vue";
 import router from "@/router/index.js";
 import {addReplyApi} from "@/api/ReplyApi.js";
+import { Modal } from 'ant-design-vue';
 
 
 const getTagList = ref(tagListDO);
@@ -89,6 +91,18 @@ const GetArticleDetails = async () => {
     console.error("数据加载出错：", error);
   }
 }
+
+
+const deleteArticle = async () => {
+  try {
+    await deleteArticleApi(aid);
+    // 删除成功后，跳转到文章列表页面
+    await router.push("/admin/blog/");
+    message.success('文章删除成功');
+  } catch (error) {
+    message.error('删除失败');
+  }
+};
 
 const GetTagList = async () => {
   try {
@@ -242,6 +256,39 @@ const goToArticleListByTag = (item) => {
   console.log(item.tname);
   router.push('/articleList/' + item.tname);
 }
+
+
+const showConfirm = () => {
+  Modal.confirm({
+    title: '你确定要删除这篇文章吗？',
+    icon: createVNode(ExclamationCircleOutlined),
+    content: createVNode(
+        'div',
+        {
+          style: 'color:red;',
+        },
+        '删除后将不可恢复',
+    ),
+    onOk() {
+        // 调用删除文章的 API
+        deleteArticle(aid);
+        console.log('OK');
+    },
+    onCancel() {
+      console.log('Cancel');
+    },
+    okText: '确定',
+    okButtonProps: {
+      style: {
+        backgroundColor: 'rgba(244,56,56,0.87)',  // 设置按钮背景颜色为红色
+        borderColor: 'red',      // 设置按钮边框颜色为红色
+        color: 'white',          // 设置按钮文字颜色为白色
+      },
+    },
+    cancelText: '取消',
+    class: 'test',
+  });
+};
 </script>
 
 
@@ -420,7 +467,7 @@ const goToArticleListByTag = (item) => {
                 </ol>
               </div>
               <div class="flex items-center space-x-3">
-                <a-button type="primary" danger ghost>删除文章</a-button>
+                <a-button @click="showConfirm" type="primary" danger ghost>删除文章</a-button>
                 <button
                     @click="showDialogUpdateArticle"
                     class="bg-sky-500 py-2 px-4 rounded-lg text-gray-100 hover:bg-sky-400 hover:text-gray-200">
@@ -534,7 +581,7 @@ const goToArticleListByTag = (item) => {
   </a-modal>
 
   <!--修改博客对话框-->
-  <a-modal v-model:open="dialogUpdateArticle" title="创建文章">
+  <a-modal v-model:open="dialogUpdateArticle" title="修改文章">
     <a-form
         class="p-3  justify-center"
     >
@@ -572,10 +619,12 @@ const goToArticleListByTag = (item) => {
           type="primary"
           @click="UpdateArticle"
       >
-        创建
+        修改
       </a-button>
     </template>
   </a-modal>
+
+
 
 </template>
 

@@ -47,6 +47,10 @@ export let updateArticleVO = {
     image:'',
 }
 
+export let deleteArticleVO = {
+    aid:'',
+}
+
 export let tagListVO = {
     page:'',
     size:'',

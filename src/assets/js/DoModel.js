@@ -108,6 +108,10 @@ export let updateArticleDO = {
     }
 }
 
+export let deleteArticleDO = {
+    baseResponse,
+}
+
 
 export let tagListDO = {
     baseResponse,

@@ -1,6 +1,6 @@
 import {
     articleDetailsDO,
-    articleListDO, createArticleDO,
+    articleListDO, createArticleDO, deleteArticleDO,
     getArticleByTagDO,
     searchArticleDO, updateArticleDO
 } from "@/assets/js/DoModel.js";
@@ -145,6 +145,30 @@ export async function updateArticleApi(getData){
         }
     } finally {
         console.debug('[REQUEST] ArticleApi[updateArticleApi]: 请求数据\n', returnData)
+    }
+    return returnData;
+}
+
+
+export async function deleteArticleApi(getData){
+    let returnData = deleteArticleDO;
+    try {
+        const res = await request.DeleteArticle(getData);
+        returnData = res.data;
+    } catch (err) {
+        if (err.response && err.response.data) {
+            if (!await publicErrorOperate(err)) {
+                switch (err.response.data.output) {
+                    default:
+                        returnData = err.response.data;
+                        message.warn(err.response.data.message);
+                }
+            }
+        } else {
+            console.warn("[REQUEST] ArticleApi[deleteArticleApi]: 无法找到 response 体");
+        }
+    } finally {
+        console.debug('[REQUEST] ArticleApi[deleteArticleApi]: 请求数据\n', returnData)
     }
     return returnData;
 }

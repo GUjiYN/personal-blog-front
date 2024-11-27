@@ -159,15 +159,16 @@ const UpdateArticle = (data) => {
 
 /**
  * 删除文章
- * @param aid
  * @return {*}
  * @constructor
+ * @param aid
  */
 const DeleteArticle = (aid) => {
     return axios({
-        url: api + "/article/delete" + aid,
+        url: api + "/article/delete/" + aid,
         method: "delete",
         headers: {
+            'Authorization': localStorage.getItem("AuthorizationToken"),
             'content-type': 'application/json;charset=utf-8',
             'X-Timestamp': new Date().getTime()
         }
