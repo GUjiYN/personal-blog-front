@@ -1,10 +1,12 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { SearchOutlined, LinkOutlined, MenuOutlined, HomeOutlined, DownOutlined, EditOutlined, PlusOutlined} from "@ant-design/icons-vue";
+import { SearchOutlined, LinkOutlined, MenuOutlined, HomeOutlined, DownOutlined, EditOutlined, PlusOutlined, LogoutOutlined } from "@ant-design/icons-vue";
 import router from "@/router/index.js";
 import {createArticleDO, searchArticleDO} from "@/assets/js/DoModel.js";
 import {createArticleVO, searchArticleVO} from "@/assets/js/VoModel.js";
 import {createArticleApi, searchArticleApi} from "@/api/ArticleApi.js";
+import {logoutApi} from "@/api/AuthApi.js";
+import {message} from "ant-design-vue";
 
 const searchArticleList = ref(searchArticleDO); // 使用 articleListDO 存储文章列表
 const articleList = ref(searchArticleVO);
@@ -74,6 +76,14 @@ const CreateArticle = async () => {
   }
 };
 
+
+const Logout = async () => {
+  const result3 = await logoutApi();
+  if (result3.output === "Success") {
+    await router.push("/");
+    message.success("登出成功")
+  }
+}
 
 
 // 输入框变化事件
@@ -147,7 +157,9 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
-
+onMounted(() => {
+  typeEffect(); // 确保在挂载时启动输入效果
+});
 
 
 
@@ -181,6 +193,8 @@ const typeEffect = () => {
     }
   }
 };
+
+
 </script>
 
 <style>
@@ -282,6 +296,10 @@ const typeEffect = () => {
             <button @click="toggleSearch" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" class="flex gap-1 items-center space-x-1">
               <MenuOutlined />
               <span>关于我</span>
+            </button>
+            <button @click="Logout" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" class="flex gap-1 items-center space-x-1">
+              <LogoutOutlined />
+              <span>登出</span>
             </button>
           </div>
         </div>

@@ -43,6 +43,18 @@ const Login = (data) => {
     })
 }
 
+const Logout = (data) => {
+    return axios({
+        url: api + "/auth/logout",
+        method: "get",
+        data: data,
+        headers: {
+            'Authorization': localStorage.getItem("AuthorizationToken"),
+            'content-type': 'application/json;charset=utf-8',
+            'X-Timestamp': new Date().getTime()
+        }
+    })
+}
 
 /**
  * 获取文章列表
@@ -267,6 +279,7 @@ const GetTagList = (data) => {
 export default {
     Register,
     Login,
+    Logout,
     GetArticleList,
     SearchArticle,
     CreateArticle,

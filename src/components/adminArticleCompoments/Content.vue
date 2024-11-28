@@ -85,7 +85,7 @@ const UpdateArticle = async () => {
     };
     console.log("payload", payload);
     console.log(localStorage.getItem("AuthorizationToken"));
-    const result4 = await updateArticleApi(payload, aid);
+    await updateArticleApi(payload, aid);
     message.success("文章更新成功")
     dialogUpdateArticle.value = false;
     window.location.reload();

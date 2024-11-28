@@ -11,6 +11,10 @@ export let loginVO = {
     password: '',
 }
 
+export let logoutVO = {
+
+}
+
 export let articleListVO = {
     page:'',
     size:'',

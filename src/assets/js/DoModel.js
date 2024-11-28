@@ -24,6 +24,10 @@ export let loginDO = {
     token: '',
 }
 
+export let logoutDO = {
+    baseResponse,
+}
+
 export let articleListDO = {
     baseResponse,
     total: 0, // 文章总数
