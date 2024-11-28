@@ -141,15 +141,17 @@ const CreateArticle = (data) => {
 /**
  * 更新文章
  * @param data
+ * @param aid
  * @return {*}
  * @constructor
  */
-const UpdateArticle = (data) => {
+const UpdateArticle = (data, aid) => {
     return axios({
-        url: api + "/article/update",
+        url: api + "/article/update/" + aid,
         method: "put",
         data: data,
         headers: {
+            'Authorization': localStorage.getItem("AuthorizationToken"),
             'content-type': 'application/json;charset=utf-8',
             'X-Timestamp': new Date().getTime()
         }

@@ -103,7 +103,7 @@ const goToDetail = (item) => {
 
 // 响应式数据
 const displayedText = ref('');
-const texts = ["江心秋月白", "凌中的风雨"];
+const texts = ["Petrichor", "凌中的风雨"];
 let textIndex = 0;
 let charIndex = 0;
 let isDeleting = false;

@@ -126,10 +126,10 @@ export async function createArticleApi(getData){
     return returnData;
 }
 
-export async function updateArticleApi(getData){
+export async function updateArticleApi(getData, aid){
     let returnData =updateArticleDO;
     try {
-        const res = await request.UpdateArticle(getData);
+        const res = await request.UpdateArticle(getData,aid);
         returnData = res.data;
     } catch (err) {
         if (err.response && err.response.data) {

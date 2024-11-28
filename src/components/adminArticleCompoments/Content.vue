@@ -1,6 +1,6 @@
 <script setup>
 import {computed, createVNode, onMounted, ref} from 'vue';
-import {createArticleApi, deleteArticleApi, getArticleDetailsApi} from "@/api/ArticleApi.js";
+import {createArticleApi, deleteArticleApi, getArticleDetailsApi, updateArticleApi} from "@/api/ArticleApi.js";
 import {
   addCommentDO,
   articleDetailsDO,
@@ -33,20 +33,20 @@ import { Modal } from 'ant-design-vue';
 const getTagList = ref(tagListDO);
 const tagList = ref(tagListVO);
 const getArticleDetails = ref(null);
-const route = useRoute();
-const aid = route.params.aid;
+
+const aid = router.currentRoute.value.params.aid;
 const getCommentList = ref(commentListDO);
 const commentList = ref(commentListVO);
 const getAddCommentVO = ref({
-  aid: route.params.aid, // 文章ID
+  aid: router.currentRoute.value.params.aid, // 文章ID
   cname: '', // 评论者名称
   email:'',
   cdesc: ''                      // 评论内容
 });
-commentListVO.aid = route.params.aid;
+commentListVO.aid = router.currentRoute.value.params.aid;
 const ReplyDiaLog = ref(false);
 const getAddReplyVO = ref({
-  aid: route.params.aid,
+  aid: router.currentRoute.value.params.aid,
   cname:'',
   email:'',
   cdesc:'',
@@ -60,20 +60,35 @@ commentListVO.size = pageSize;
 const dialogUpdateArticle = ref(false);
 const updateArticleD  = ref(updateArticleDO);
 const updateArticleV = ref(updateArticleVO);
-
+updateArticleV.aid = router.currentRoute.value.params.aid;
 
 const closeDialogUpdateArticle = () => {
   dialogUpdateArticle.value = false;
-
 }
 const showDialogUpdateArticle = async () => {
   dialogUpdateArticle.value = true;
+  const response = await getArticleDetailsApi(aid);
+  if (response.data) {
+    // 直接将文章详情填充到表单数据
+    updateArticleV.value.title = response.data.title;
+    updateArticleV.value.description = response.data.description;
+    updateArticleV.value.tags = response.data.tags;
+  }
 }
 const UpdateArticle = async () => {
   try {
-    const result4 = await createArticleApi(updateArticleV.value);
-    console.log(result2);
-    updateArticleD.value = result4.data;
+    const payload = {
+      ...updateArticleV.value,
+      tags: Array.isArray(updateArticleV.value.tags)
+          ? updateArticleV.value.tags
+          : updateArticleV.value.tags.split(',').map(tag => tag.trim()), // 确保 tags 是数组
+    };
+    console.log("payload", payload);
+    console.log(localStorage.getItem("AuthorizationToken"));
+    const result4 = await updateArticleApi(payload, aid);
+    message.success("文章更新成功")
+    dialogUpdateArticle.value = false;
+    window.location.reload();
   } catch (error) {
     console.error('更新文章时出错',error);
   }
@@ -92,6 +107,38 @@ const GetArticleDetails = async () => {
   }
 }
 
+
+const showConfirm = () => {
+  Modal.confirm({
+    title: '你确定要删除这篇文章吗？',
+    icon: createVNode(ExclamationCircleOutlined),
+    content: createVNode(
+        'div',
+        {
+          style: 'color:red;',
+        },
+        '删除后将不可恢复',
+    ),
+    onOk() {
+      // 调用删除文章的 API
+      deleteArticle(aid);
+      console.log('OK');
+    },
+    onCancel() {
+      console.log('Cancel');
+    },
+    okText: '确定',
+    okButtonProps: {
+      style: {
+        backgroundColor: 'rgba(244,56,56,0.87)',  // 设置按钮背景颜色为红色
+        borderColor: 'red',      // 设置按钮边框颜色为红色
+        color: 'white',          // 设置按钮文字颜色为白色
+      },
+    },
+    cancelText: '取消',
+    class: 'test',
+  });
+};
 
 const deleteArticle = async () => {
   try {
@@ -256,39 +303,6 @@ const goToArticleListByTag = (item) => {
   console.log(item.tname);
   router.push('/articleList/' + item.tname);
 }
-
-
-const showConfirm = () => {
-  Modal.confirm({
-    title: '你确定要删除这篇文章吗？',
-    icon: createVNode(ExclamationCircleOutlined),
-    content: createVNode(
-        'div',
-        {
-          style: 'color:red;',
-        },
-        '删除后将不可恢复',
-    ),
-    onOk() {
-        // 调用删除文章的 API
-        deleteArticle(aid);
-        console.log('OK');
-    },
-    onCancel() {
-      console.log('Cancel');
-    },
-    okText: '确定',
-    okButtonProps: {
-      style: {
-        backgroundColor: 'rgba(244,56,56,0.87)',  // 设置按钮背景颜色为红色
-        borderColor: 'red',      // 设置按钮边框颜色为红色
-        color: 'white',          // 设置按钮文字颜色为白色
-      },
-    },
-    cancelText: '取消',
-    class: 'test',
-  });
-};
 </script>
 
 
@@ -601,7 +615,12 @@ const showConfirm = () => {
           label="标签"
           :rules="[{ required: true}]"
       >
-        <a-input v-model:value="updateArticleV.tags"/>
+        <a-select
+            mode="tags"
+            v-model:value="updateArticleV.tags"
+            placeholder="请输入标签，按回车添加"
+            style="width: 100%;"
+        />
       </a-form-item>
       <a-form-item label="图片">
         <a-upload action="/upload.do" list-type="picture-card">
