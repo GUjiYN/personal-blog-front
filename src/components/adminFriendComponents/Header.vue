@@ -1,21 +1,15 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { SearchOutlined, LinkOutlined, MenuOutlined, HomeOutlined, DownOutlined,
-  EditOutlined, PlusOutlined, LogoutOutlined,TagsOutlined,ProfileOutlined,ReadOutlined
-} from "@ant-design/icons-vue";
+import { SearchOutlined, LinkOutlined, MenuOutlined, HomeOutlined, DownOutlined } from "@ant-design/icons-vue";
 import router from "@/router/index.js";
-import {createArticleDO, searchArticleDO} from "@/assets/js/DoModel.js";
-import {createArticleVO, searchArticleVO} from "@/assets/js/VoModel.js";
-import {createArticleApi, searchArticleApi} from "@/api/ArticleApi.js";
-import {logoutApi} from "@/api/AuthApi.js";
-import {message} from "ant-design-vue";
+import {searchArticleDO} from "@/assets/js/DoModel.js";
+import {searchArticleVO} from "@/assets/js/VoModel.js";
+import {searchArticleApi} from "@/api/ArticleApi.js";
+
 
 const searchArticleList = ref(searchArticleDO); // 使用 articleListDO 存储文章列表
 const articleList = ref(searchArticleVO);
 const dialogSearch = ref(false);
-const dialogCreateArticle = ref(false);
-const createArticleD  = ref(createArticleDO);
-const createArticleV = ref(createArticleVO);
 
 const closeDialogSearch = () => {
   dialogSearch.value = false;
@@ -24,68 +18,18 @@ const closeDialogSearch = () => {
 };
 
 const showDialogSearch = () => dialogSearch.value = true;
+
+
 const DialogSearch = async () => {
   try {
-    const result1 = await searchArticleApi(articleList.value); // 传递 VO 对象
-    searchArticleList.value = result1.data.records || [];
+    const result = await searchArticleApi(articleList.value); // 传递 VO 对象
+    searchArticleList.value = result.data.records || [];
     console.log('文章', searchArticleList.value);
     console.log('查询成功', searchArticleList.value);
   } catch (error) {
     console.error('查询文章时出错：', error);
   }
 };
-
-
-const fileList = ref([]); // 存储上传文件列表
-
-const handleImageChange = (info) => {
-  if (info.file.status === 'done') {
-    // 图片上传成功
-    const fileUrl = info.file.response.url; // 假设接口返回的图片 URL 存在 response.url 中
-    createArticleV.value.image = fileUrl; // 将图片 URL 存入 createArticleV 对象中
-    console.log('图片上传成功', fileUrl);
-  } else if (info.file.status === 'error') {
-    // 图片上传失败
-    console.error('图片上传失败');
-  }
-};
-
-
-const closeDialogCreateArticle = () => {
-  dialogCreateArticle.value = false;
-
-}
-const showDialogCreateArticle = async () => {
-  dialogCreateArticle.value = true;
-}
-const CreateArticle = async () => {
-  try {
-    const payload = {
-      ...createArticleV.value,
-      tags: Array.isArray(createArticleV.value.tags)
-          ? createArticleV.value.tags
-          : createArticleV.value.tags.split(',').map(tag => tag.trim()), // 确保 tags 是数组
-    };
-    console.log(payload);
-    console.log(localStorage.getItem("AuthorizationToken"));
-    const result2 = await createArticleApi(payload);
-    console.log(result2);
-    createArticleD.value = result2.data;
-    dialogCreateArticle.value = false; // 成功后关闭对话框
-    window.location.reload();
-  } catch (error) {
-    console.error('创建文章时出错', error);
-  }
-};
-
-
-const Logout = async () => {
-  const result3 = await logoutApi();
-  if (result3.output === "Success") {
-    await router.push("/");
-    message.success("登出成功")
-  }
-}
 
 
 // 输入框变化事件
@@ -115,7 +59,7 @@ const goToDetail = (item) => {
 
 // 响应式数据
 const displayedText = ref('');
-const texts = ["Petrichor", "凌中的风雨"];
+const texts = ["Petrichor"];
 let textIndex = 0;
 let charIndex = 0;
 let isDeleting = false;
@@ -165,6 +109,7 @@ onMounted(() => {
 
 
 
+
 // 动态输入和删除效果
 const typeEffect = () => {
   const currentText = texts[textIndex];
@@ -195,8 +140,6 @@ const typeEffect = () => {
     }
   }
 };
-
-
 </script>
 
 <style>
@@ -246,7 +189,7 @@ const typeEffect = () => {
           'flex gap-1 items-center space-x-1 transition-all duration-300',
           isScrolled ? 'text-gray-700' : 'text-white'
         ]"
-                href="/admin/blog"
+                href="/"
             >
               <HomeOutlined />
               <span>首页</span>
@@ -271,37 +214,9 @@ const typeEffect = () => {
               <LinkOutlined />
               <span>友链</span>
             </button>
-            <a-dropdown>
-              <button @click="toggleSearch" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" class="flex gap-1 items-center space-x-1">
-                <svg class="w-5 h-5" :class="isScrolled ? 'text-gray-700' : 'text-white'" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z"/>
-                </svg>
-                <span>归档</span>
-                <DownOutlined />
-              </button>
-              <template class="bg-black hover:text-white" #overlay>
-                <a-menu>
-                  <a-menu-item>
-                    <button @click="router.push({name:'Tag'})">标签</button>
-                  </a-menu-item>
-                </a-menu>
-              </template>
-            </a-dropdown>
-            <button
-                :class="['flex gap-1 items-center space-x-1 transition-all duration-300',isScrolled ? 'text-gray-700'
-                : 'text-white']"
-                @click="showDialogCreateArticle "
-            >
-              <EditOutlined />
-              <span>创建博客</span>
-            </button>
-            <button @click="toggleSearch" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" class="flex gap-1 items-center space-x-1">
+            <button @click="toggleSearch" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-white hover:text-white']" class="flex gap-1 items-center space-x-1">
               <MenuOutlined />
               <span>关于我</span>
-            </button>
-            <button @click="Logout" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" class="flex gap-1 items-center space-x-1">
-              <LogoutOutlined />
-              <span>登出</span>
             </button>
           </div>
         </div>
@@ -337,6 +252,7 @@ const typeEffect = () => {
         </a-input>
       </a-form-item>
     </a-form>
+
     <!-- 文章列表 -->
     <a-list
         v-if="searchArticleList.length > 0"
@@ -358,6 +274,7 @@ const typeEffect = () => {
     <template v-else>
       <p class="text-gray-500 text-center mt-4">暂无数据</p>
     </template>
+
     <template #footer>
       <a-button @click="closeDialogSearch">取消</a-button>
       <a-button
@@ -365,67 +282,6 @@ const typeEffect = () => {
           type="primary"
           @click="DialogSearch"
       >查询</a-button>
-    </template>
-  </a-modal>
-
-  <!--创建文章对话框-->
-  <a-modal v-model:open="dialogCreateArticle" title="创建文章">
-    <a-form
-        class="p-3  justify-center"
-    >
-      <a-form-item
-          label="标题"
-          :rules="[{ required: true }]"
-      >
-        <a-input  v-model:value="createArticleV.title">
-          <template #prefix>
-            <ProfileOutlined />
-          </template>
-        </a-input>
-      </a-form-item>
-      <a-form-item
-          label="内容"
-          :rules="[{ required: true, message: '文章内容不能为空!' }]"
-      >
-      <a-textarea v-model:value="createArticleV.description">
-      </a-textarea>
-      </a-form-item>
-      <a-form-item
-          label="标签"
-          :rules="[{ required: true}]"
-      >
-        <a-select
-            mode="tags"
-            v-model:value="createArticleV.tags"
-            placeholder="请输入标签，按回车添加"
-            style="width: 100%;"
-        >
-        </a-select>
-      </a-form-item>
-      <a-form-item label="图片">
-        <a-upload
-            action="/upload.do"
-        list-type="picture-card"
-        :on-change="handleImageChange"
-        :file-list="fileList"
-        :show-upload-list="false"
-        >
-        <div>
-          <PlusOutlined />
-          <div style="margin-top: 8px">Upload</div>
-        </div>
-        </a-upload>
-      </a-form-item>
-    </a-form>
-    <template #footer>
-      <a-button @click="closeDialogCreateArticle">取消</a-button>
-      <a-button
-          class="bg-aspargus mt-4"
-          type="primary"
-          @click="CreateArticle"
-      >
-        创建
-      </a-button>
     </template>
   </a-modal>
 

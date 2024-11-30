@@ -1,4 +1,5 @@
 import {createRouter, createWebHistory} from 'vue-router'
+import AdminFriendFrame from "@/views/adminFriendPage/AdminFriendFrame.vue";
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes:
@@ -18,12 +19,12 @@ const router = createRouter({
             {   //登录路由
                 path:'/login',
                 name:'Login',
-                component:() => import('@/views/authPage/Login.vue')
+                component:() => import('@/views/authPage/Login.vue'),
             },
             {   //注册路由
                 path:'/register',
                 name:'Register',
-                component:() => import('@/views/authPage/Register.vue')
+                component:() => import('@/views/authPage/Register.vue'),
             },
             {
                 //博客页面相关路由
@@ -34,18 +35,23 @@ const router = createRouter({
             {
                 path:'/admin/blog',
                 name:'AdminBlog',
-                component:() => import('@/views/adminBlogPage/AdminBlogFrame.vue')
+                component:() => import('@/views/adminBlogPage/AdminBlogFrame.vue'),
             },
             {
                 path:'/friend',
                 name:'Friend',
-                component:() => import('@/views/friendPage/FriendFrame.vue')
+                component:() => import('@/views/friendPage/FriendFrame.vue'),
+            },
+            {
+                path:'/admin/friend',
+                name:'AdminFriend',
+                component:() => import('@/views/adminFriendPage/AdminFriendFrame.vue'),
             },
             {
                 //标签相关路由
                 path:'/tag',
                 name:'Tag',
-                component:() => import('@/views/tagPage/TagFrame.vue')
+                component:() => import('@/views/tagPage/TagFrame.vue'),
             },
             {
                 //文章详情页面相关路由
@@ -57,13 +63,13 @@ const router = createRouter({
                 //管理员文章详情页面路由
                 path:'/admin-article/:aid',
                 name:'AdminArticleDetail',
-                component:() => import('@/views/adminArticlePage/AdminArticleFrame.vue')
+                component:() => import('@/views/adminArticlePage/AdminArticleFrame.vue'),
             },
             {
                 //根据标签获取文章页面相关路由
                 path:'/articleList/:tname',
                 name:'ArticleListByTag',
-                component:()=> import('@/views/getArticlesByTagPage/GetArticlesByTagFrame.vue')
+                component:()=> import('@/views/getArticlesByTagPage/GetArticlesByTagFrame.vue'),
             }
     ]
 })

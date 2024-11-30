@@ -13,7 +13,7 @@ import {useRoute} from "vue-router";
 import {
   CustomerServiceOutlined,
   ExclamationCircleOutlined, GithubOutlined,
-  LockOutlined, PlusOutlined,
+  LockOutlined, PlusOutlined, ProfileOutlined,
   QqOutlined,
   ScissorOutlined,
   TagOutlined,
@@ -589,7 +589,11 @@ const goToArticleListByTag = (item) => {
           label="标题"
           :rules="[{ required: true }]"
       >
-        <a-input v-model:value="updateArticleV.title"/>
+        <a-input v-model:value="updateArticleV.title">
+          <template #prefix>
+            <ProfileOutlined />
+          </template>
+        </a-input>
       </a-form-item>
       <a-form-item
           label="内容"

@@ -192,7 +192,7 @@ const typeEffect = () => {
           'flex gap-1 items-center space-x-1 transition-all duration-300',
           isScrolled ? 'text-gray-700' : 'text-white'
         ]"
-                href="/"
+                href="/admin/blog"
             >
               <HomeOutlined />
               <span>首页</span>
