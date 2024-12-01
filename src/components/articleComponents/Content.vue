@@ -9,7 +9,8 @@ import {
   QqOutlined,
   ScissorOutlined,
   TagOutlined,
-  UserOutlined
+  UserOutlined,
+  CommentOutlined
 } from "@ant-design/icons-vue";
 import {commentListVO, tagListVO} from "@/assets/js/VoModel.js";
 import {getTagListApi} from "@/api/TagApi.js";
@@ -222,8 +223,8 @@ const goToArticleListByTag = (item) => {
       <div class="grid grid-cols-12 container p-48 gap-6">
         <div class="col-span-9">
           <div class="grid grid-cols-1 gap-6">
-            <div class="bg-gray-100 rounded-lg p-4">
-              <div v-if="getArticleDetails && getArticleDetails.title">
+            <div class="bg-white rounded-lg">
+              <div class="p-4" v-if="getArticleDetails && getArticleDetails.title">
                 <h1>{{ getArticleDetails.title }}</h1>
                 <!-- 使用 v-html 渲染 Markdown 转换后的 HTML -->
                 <div v-html="articleContentHtml">
@@ -234,59 +235,69 @@ const goToArticleListByTag = (item) => {
               <div v-else>
                 <p>加载文章内容中...</p>
               </div>
-              <a-divider orientation="left" style="border-top-color: rgb(12,12,12); color: rgb(2,2,2);">
-                <ScissorOutlined/>
-              </a-divider>
-              <div class="bg-gray-200 text-gray-300 p-6 rounded-lg space-y-6">
-                <a-form
-                    :label-col="{ span: 8 }"
-                    :wrapper-col="{ span: 16 }"
-                    autocomplete="off"
-                    layout="inline"
-                    name="basic"
+             <div class="p-4">
+                <span class="flex items-center">
+                  <span class="pr-4 text-gray-500 flex gap-1"><CommentOutlined /><span>评论</span></span>
+                  <span class="h-px flex-1 bg-gray-200"></span>
+                </span>
+             </div>
+              <div class=" text-gray-300 rounded-lg space-y-6">
+                <form
+                    class="flex flex-col p-4"
                 >
-                  <a-form-item
-                      label="昵称"
-                      name="username"
+                  <!-- 使用 flex 让昵称和邮箱占据相等宽度 -->
+                  <div class="flex w-full">
+                    <div class="w-1/2">
+                      <label class="sr-only" for="name">Name</label>
+                      <input
+                          class="w-full rounded-tl-lg border-gray-200 p-3 text-sm"
+                          placeholder="昵称"
+                          v-model="getAddCommentVO.cname"
+                          type="text"
+                          id="name"
+                      />
+                    </div>
+                    <div class="w-1/2">
+                      <label class="sr-only" for="email">Email</label>
+                      <input
+                          class="w-full rounded-tr-lg border-gray-200 p-3 text-sm"
+                          placeholder="邮箱"
+                          v-model="getAddCommentVO.email"
+                          type="email"
+                          id="email"
+                      />
+                    </div>
+                  </div>
+                  <!-- 评论内容 -->
+                  <div
+                      class="overflow-hidden rounded-bl-lg border border-gray-200 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
                   >
-                    <a-input v-model:value="getAddCommentVO.cname"
-                             class="bg-gray-300 border border-gray-300 rounded-lg"/>
-                  </a-form-item>
+                    <textarea
+                        id="OrderNotes"
+                        class="w-full resize-none border-none align-top focus:ring-0 sm:text-sm"
+                        rows="4"
+                        placeholder="欢迎评论"
+                        v-model="getAddCommentVO.cdesc"
+                    ></textarea>
+                    <div class="flex items-center justify-end gap-2 bg-white p-3">
+                      <button
+                          type="button"
+                          @click="router.replace({name:'Login'})"
+                          class="rounded bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-gray-600"
+                      >
+                        登录
+                      </button>
 
-                  <a-form-item
-                      label="邮箱"
-                      name="email"
-                  >
-                    <a-input class="bg-gray-300 border border-gray-300 rounded-lg"/>
-                  </a-form-item>
-                </a-form>
-                <div>
-                  <a-textarea
-                      v-model:value="getAddCommentVO.cdesc"
-                      :rows="4"
-                      class="w-full bg-gray-300 text-gray-200 border border-gray-300 rounded-md p-3
-                      focus:outline-none focus:border-blue-500"
-                      placeholder="欢迎评论"
-                  />
-                </div>
-                <div class="flex justify-between items-center">
-                  <div class="flex space-x-3 text-gray-400 text-lg">
-                    <span class="cursor-pointer hover:text-gray-200">M↓</span>
-                    <span class="cursor-pointer hover:text-gray-200">GIF</span>
-                    <span class="cursor-pointer hover:text-gray-200">IMG</span>
+                      <button
+                          type="button"
+                          @click="AddComment"
+                          class="rounded bg-indigo-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+                      >
+                        提交
+                      </button>
+                    </div>
                   </div>
-                  <div class="flex items-center space-x-3">
-                    <span class="text-gray-500"> 字</span>
-                    <button class="bg-gray-300 py-2 px-4 rounded-lg text-gray-500 hover:bg-gray-400"
-                            @click="router.replace({name:'Login'})">登录
-                    </button>
-                    <button
-                        class="bg-sky-500 py-2 px-4 rounded-lg text-gray-100 hover:bg-sky-400 hover:text-gray-200"
-                        @click="AddComment">
-                      提交
-                    </button>
-                  </div>
-                </div>
+                </form>
                 <div>
                   <a-comment
                       v-for="(item, index) in getCommentList"
@@ -397,16 +408,16 @@ const goToArticleListByTag = (item) => {
           <div class="bg-white p-4 rounded-lg">
             <div class="mb-6 text-center rounded-lg">
               <img alt="Profile Image" class="w-24 h-24 rounded-full mx-auto mb-4" src="@/assets/images/img4.jpg"/>
-              <h2 class="text-xl font-semibold">用户名</h2>
+              <h2 class="text-xl font-semibold">Petrichor</h2>
               <p class="text-sm text-gray-700">只为在茫茫人海中有自己的小天空！</p>
               <div class="mt-4 flex justify-center space-x-6">
                 <a class="text-gray-700 hover:text-gray-200" href="#"> 文章</a>
                 <a class="text-gray-700 hover:text-gray-200" href="#">标签</a>
               </div>
               <div class="mt-4 flex justify-center space-x-6">
-                <button class="bg-gray-200 p-4 flex gap-1 items-center space-x-1 text-gray-700 hover:text-white">
+                <button class="bg-sky-100 p-4 flex gap-1 items-center space-x-1 text-gray-700 hover:text-white">
                   <UserOutlined/>
-                  <span class="text-gray-700">关于我的一些事?</span>
+                  <span class="text-gray-700 ">关于我的一些事?</span>
                 </button>
               </div>
               <div class="mt-4 flex justify-center space-x-6">
@@ -418,10 +429,10 @@ const goToArticleListByTag = (item) => {
           </div>
           <div class="p-4 bg-white rounded-lg text-gray-700">
             <h3 class="text-lg font-bold">公告</h3>
-            <p class="">一名忙碌的程序员</p>
+            <p class="bg-sky-100 rounded-lg p-4">一名忙碌的程序员</p>
           </div>
           <div class="p-4 bg-white rounded-lg">
-            <div class="text-gray-700 bg-gray-200 p-4 rounded-lg">
+            <div class="text-gray-700 bg-sky-100 p-4 rounded-lg">
               <h3 class="text-lg font-bold mb-4">最新文章</h3>
               <ul class="space-y-2">
                 <li><a class="hover:underline" href="#">Java 库上传 Maven 中央仓库</a></li>
@@ -435,7 +446,7 @@ const goToArticleListByTag = (item) => {
               <TagOutlined/>
               <span>标签</span>
             </div>
-            <div class="grid grid-cols-3 gap-y-2">
+            <div class="grid grid-cols-3 gap-y-2 bg-sky-100 rounded-lg p-4">
               <button
                   v-for="(item, index) in getTagList"
                   :key="index"
