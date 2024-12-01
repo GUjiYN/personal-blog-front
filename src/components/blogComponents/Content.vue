@@ -1,5 +1,5 @@
 <script setup>
-import {QqOutlined, TagOutlined, UserOutlined,CalendarOutlined,GithubOutlined, CustomerServiceOutlined} from "@ant-design/icons-vue";
+import {QqOutlined, TagOutlined, UserOutlined,CalendarOutlined,GithubOutlined, CustomerServiceOutlined, NotificationOutlined, HistoryOutlined } from "@ant-design/icons-vue";
 import {computed, onMounted, ref} from 'vue';
 import {tagListDO} from "@/assets/js/DoModel.js";
 import {tagListVO} from "@/assets/js/VoModel.js";
@@ -82,8 +82,6 @@ const goToArticleListByTag = (item) => {
   console.log(item.tname);
   router.push('/articleList/' + item.tname);
 }
-
-
 
 </script>
 
@@ -216,7 +214,7 @@ const goToArticleListByTag = (item) => {
                 <a class="text-gray-700 hover:text-gray-200" href="#">标签</a>
               </div>
               <div class="mt-4 flex justify-center space-x-6">
-                <button class="bg-sky-200 p-4 flex gap-1 items-center space-x-1 text-gray-700 hover:text-white">
+                <button class="bg-sky-100 p-4 flex gap-1 items-center space-x-1 text-gray-700 hover:text-white">
                   <UserOutlined/>
                   <span>关于我的一些事?</span>
                 </button>
@@ -230,13 +228,19 @@ const goToArticleListByTag = (item) => {
             </div>
           </div>
           <div class="p-4 bg-white rounded-lg text-gray-700">
-            <h3 class="text-lg font-bold">公告</h3>
-            <p class="">一名忙碌的程序员</p>
+            <div class="flex gap-1 font-bold mb-4">
+              <NotificationOutlined />
+              <span>公告</span>
+            </div>
+            <p class="bg-sky-100 p-4 rounded-lg">一名忙碌的程序员</p>
           </div>
           <div class="p-4 bg-white rounded-lg">
-            <div class="text-gray-700 bg-sky-200 p-4 rounded-lg">
-              <h3 class="text-lg font-bold mb-4">最新文章</h3>
-              <ul class="space-y-2">
+            <div class="text-gray-700 rounded-lg">
+              <div  class="flex gap-1 font-bold mb-4">
+                <HistoryOutlined />
+                <span>最新文章</span>
+              </div>
+              <ul class="space-y-2 bg-sky-100 p-4 rounded-lg">
                 <li><a class="hover:underline" href="#">Java 库上传 Maven 中央仓库</a></li>
                 <li><a class="hover:underline" href="#">存活证明</a></li>
                 <li><a class="hover:underline" href="#">安卓开发学习记录 [一]</a></li>
@@ -244,11 +248,11 @@ const goToArticleListByTag = (item) => {
             </div>
           </div>
           <div class="p-4 bg-white rounded-lg flex flex-col text-gray-700">
-            <div class="flex gap-1  mb-4">
+            <div class="flex gap-1 font-bold mb-4">
               <TagOutlined/>
               <span>标签</span>
             </div>
-            <div class="grid grid-cols-3 gap-y-2 bg-sky-200 rounded-lg p-4">
+            <div class="grid grid-cols-3 gap-y-2 bg-sky-100 rounded-lg p-4">
               <button
                   v-for="(item, index) in getTagList"
                   :key="index"
