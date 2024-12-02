@@ -3,6 +3,7 @@ import {computed, createVNode, onMounted, ref} from 'vue';
 import {deleteArticleApi, getArticleDetailsApi, updateArticleApi} from "@/api/ArticleApi.js";
 import {articleDetailsDO, commentListDO, tagListDO, updateArticleDO} from "@/assets/js/DoModel.js";
 import {
+  CommentOutlined,
   CustomerServiceOutlined,
   ExclamationCircleOutlined,
   GithubOutlined,
@@ -309,8 +310,8 @@ const goToArticleListByTag = (item) => {
       <div class="grid grid-cols-12 container p-48 gap-6">
         <div class="col-span-9">
           <div class="grid grid-cols-1 gap-6">
-            <div class="bg-gray-100 rounded-lg p-4">
-              <div v-if="getArticleDetails && getArticleDetails.title">
+            <div class="bg-white rounded-lg">
+              <div class="p-4" v-if="getArticleDetails && getArticleDetails.title">
                 <h1>{{ getArticleDetails.title }}</h1>
                 <!-- 使用 v-html 渲染 Markdown 转换后的 HTML -->
                 <div v-html="articleContentHtml">
@@ -321,60 +322,70 @@ const goToArticleListByTag = (item) => {
               <div v-else>
                 <p>加载文章内容中...</p>
               </div>
-              <a-divider orientation="left" style="border-top-color: rgb(12,12,12); color: rgb(2,2,2);">
-                <ScissorOutlined/>
-              </a-divider>
-              <div class="bg-gray-200 text-gray-300 p-6 rounded-lg space-y-6">
-                <a-form
-                    :label-col="{ span: 8 }"
-                    :wrapper-col="{ span: 16 }"
-                    autocomplete="off"
-                    layout="inline"
-                    name="basic"
+              <div class="p-4">
+                <span class="flex items-center">
+                  <span class="pr-4 text-gray-500 flex gap-1"><CommentOutlined /><span>评论</span></span>
+                  <span class="h-px flex-1 bg-gray-200"></span>
+                </span>
+              </div>
+              <div class=" text-gray-300 rounded-lg space-y-6">
+                <form
+                    class="flex flex-col p-4"
                 >
-                  <a-form-item
-                      label="昵称"
-                      name="username"
+                  <!-- 使用 flex 让昵称和邮箱占据相等宽度 -->
+                  <div class="flex w-full">
+                    <div class="w-1/2">
+                      <label class="sr-only" for="name">Name</label>
+                      <input
+                          class="w-full rounded-tl-lg border-gray-200 p-3 text-sm"
+                          placeholder="昵称"
+                          v-model="getAddCommentVO.cname"
+                          type="text"
+                          id="name"
+                      />
+                    </div>
+                    <div class="w-1/2">
+                      <label class="sr-only" for="email">Email</label>
+                      <input
+                          class="w-full rounded-tr-lg border-gray-200 p-3 text-sm"
+                          placeholder="邮箱"
+                          v-model="getAddCommentVO.email"
+                          type="email"
+                          id="email"
+                      />
+                    </div>
+                  </div>
+                  <!-- 评论内容 -->
+                  <div
+                      class="overflow-hidden rounded-bl-lg border border-gray-200 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
                   >
-                    <a-input v-model:value="getAddCommentVO.cname"
-                             class="bg-gray-300 border border-gray-300 rounded-lg"/>
-                  </a-form-item>
+                    <textarea
+                        id="OrderNotes"
+                        class="w-full resize-none border-none align-top focus:ring-0 sm:text-sm"
+                        rows="4"
+                        placeholder="欢迎评论"
+                        v-model="getAddCommentVO.cdesc"
+                    ></textarea>
+                    <div class="flex items-center justify-end gap-2 bg-white p-3">
+                      <button
+                          type="button"
+                          @click="router.replace({name:'Login'})"
+                          class="rounded bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-gray-600"
+                      >
+                        登录
+                      </button>
 
-                  <a-form-item
-                      label="邮箱"
-                      name="email"
-                  >
-                    <a-input class="bg-gray-300 border border-gray-300 rounded-lg"/>
-                  </a-form-item>
-                </a-form>
-                <div>
-                  <a-textarea
-                      v-model:value="getAddCommentVO.cdesc"
-                      :rows="4"
-                      class="w-full bg-gray-300 text-gray-200 border border-gray-300 rounded-md p-3
-                      focus:outline-none focus:border-blue-500"
-                      placeholder="欢迎评论"
-                  />
-                </div>
-                <div class="flex justify-between items-center">
-                  <div class="flex space-x-3 text-gray-400 text-lg">
-                    <span class="cursor-pointer hover:text-gray-200">M↓</span>
-                    <span class="cursor-pointer hover:text-gray-200">GIF</span>
-                    <span class="cursor-pointer hover:text-gray-200">IMG</span>
+                      <button
+                          type="button"
+                          @click="AddComment"
+                          class="rounded bg-indigo-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+                      >
+                        提交
+                      </button>
+                    </div>
                   </div>
-                  <div class="flex items-center space-x-3">
-                    <span class="text-gray-500"> 字</span>
-                    <button class="bg-gray-300 py-2 px-4 rounded-lg text-gray-500 hover:bg-gray-400"
-                            @click="router.replace({name:'Login'})">登录
-                    </button>
-                    <button
-                        class="bg-sky-500 py-2 px-4 rounded-lg text-gray-100 hover:bg-sky-400 hover:text-gray-200"
-                        @click="AddComment">
-                      提交
-                    </button>
-                  </div>
-                </div>
-                <div>
+                </form>
+                <div class="p-4">
                   <a-comment
                       v-for="(item, index) in getCommentList"
                       :key="index"
@@ -384,7 +395,7 @@ const goToArticleListByTag = (item) => {
                     </template>
                     <template #author><a>{{ item.cname }}</a></template>
                     <template #avatar>
-                      <a-avatar alt="Han Solo" src="https://joeschmoe.io/api/v1/random"/>
+                      <a-avatar src="https://joeschmoe.io/api/v1/random" alt="Han Solo" />
                     </template>
                     <template #content><p>{{ item.cdesc }}</p></template>
                     <template #datetime>
@@ -401,7 +412,7 @@ const goToArticleListByTag = (item) => {
                       >
                         <template #author><a>{{ reply.cname }}</a></template>
                         <template #avatar>
-                          <a-avatar alt="Han Solo" src="https://joeschmoe.io/api/v1/random"/>
+                          <a-avatar src="https://joeschmoe.io/api/v1/random" alt="Han Solo" />
                         </template>
                         <template #content><p>{{ reply.cdesc }}</p></template>
                         <template #datetime>
@@ -420,21 +431,21 @@ const goToArticleListByTag = (item) => {
                   <!-- 上一页按钮 -->
                   <li>
                     <button
-                        :disabled="currentPage === 1"
-                        class="inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
                         @click="goToPage(currentPage - 1)"
+                        class="inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
+                        :disabled="currentPage === 1"
                     >
                       <span class="sr-only">Prev Page</span>
                       <svg
-                          class="size-3"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
                           xmlns="http://www.w3.org/2000/svg"
+                          class="size-3"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
                       >
                         <path
-                            clip-rule="evenodd"
-                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
                             fill-rule="evenodd"
+                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                            clip-rule="evenodd"
                         />
                       </svg>
                     </button>
@@ -443,11 +454,11 @@ const goToArticleListByTag = (item) => {
                   <!-- 页码按钮 -->
                   <li v-for="page in totalPages" :key="page">
                     <button
+                        @click="goToPage(page)"
                         :class="[
             'block size-8 rounded border text-center leading-8',
             page === currentPage ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white text-gray-900 border-gray-100'
           ]"
-                        @click="goToPage(page)"
                     >
                       {{ page }}
                     </button>
@@ -456,34 +467,26 @@ const goToArticleListByTag = (item) => {
                   <!-- 下一页按钮 -->
                   <li>
                     <button
-                        :disabled="currentPage === totalPages"
-                        class="inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
                         @click="goToPage(currentPage + 1)"
+                        class="inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
+                        :disabled="currentPage === totalPages"
                     >
                       <span class="sr-only">Next Page</span>
                       <svg
-                          class="size-3"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
                           xmlns="http://www.w3.org/2000/svg"
+                          class="size-3"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
                       >
                         <path
-                            clip-rule="evenodd"
-                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                             fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd"
                         />
                       </svg>
                     </button>
                   </li>
                 </ol>
-              </div>
-              <div class="flex items-center space-x-3">
-                <a-button danger ghost type="primary" @click="showConfirm">删除文章</a-button>
-                <button
-                    class="bg-sky-500 py-2 px-4 rounded-lg text-gray-100 hover:bg-sky-400 hover:text-gray-200"
-                    @click="showDialogUpdateArticle">
-                  修改文章
-                </button>
               </div>
             </div>
           </div>
