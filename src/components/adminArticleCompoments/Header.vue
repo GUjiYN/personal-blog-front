@@ -8,11 +8,13 @@ import {
   SearchOutlined,
 } from "@ant-design/icons-vue";
 import router from "@/router/index.js";
-import { searchArticleDO } from "@/assets/js/DoModel.js";
+import {articleDetailsDO, searchArticleDO} from "@/assets/js/DoModel.js";
 import { searchArticleVO } from "@/assets/js/VoModel.js";
-import { searchArticleApi } from "@/api/ArticleApi.js";
+import {getArticleDetailsApi, searchArticleApi} from "@/api/ArticleApi.js";
 
 // 数据定义
+const aid = router.currentRoute.value.params.aid;
+const getArticleDetails = ref(null);
 const searchArticleList = ref(searchArticleDO); // 存储文章列表
 const articleList = ref(searchArticleVO); // 文章查询参数
 const dialogSearch = ref(false); // 搜索对话框状态
@@ -27,6 +29,15 @@ let charIndex = 0;
 let isDeleting = false;
 
 // 方法定义
+
+const GetArticleDetails = async () => {
+  try {
+    const result1 = await getArticleDetailsApi(aid);
+    getArticleDetails.value = result1.data || articleDetailsDO;
+  } catch (error) {
+    console.error("数据加载出错：", error);
+  }
+}
 
 // 打开和关闭搜索对话框
 const closeDialogSearch = () => {
@@ -123,12 +134,22 @@ const typeEffect = () => {
 onMounted(() => {
   window.addEventListener("scroll", handleScroll);
   typeEffect();
+  GetArticleDetails();
 });
 
 // 卸载时移除滚动事件监听
 onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
 });
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+};
 </script>
 
 
@@ -150,7 +171,7 @@ onUnmounted(() => {
 </style>
 
 <template>
-  <div class="relative bg-cover h-screen bg-[url('@/assets/images/img2.jpg')]">
+  <div class="relative bg-cover h-[400px] bg-[url('@/assets/images/img2.jpg')]">
     <div class="absolute top-0 left-0 right-0 bottom-0 bg-black opacity-20"></div>
     <div class="relative">
       <nav
@@ -234,14 +255,21 @@ onUnmounted(() => {
         </div>
       </nav>
 
-
     </div>
-    <div class="relative flex items-center justify-center h-full">
-      <div class="relative flex items-center justify-center h-full">
-        <div class="text-center text-gray-200">
+    <div class="relative flex h-full">
+      <div class="relative flex items-end h-full">
+        <div class="text-center text-gray-200 mb-6 ml-48"  v-if="getArticleDetails && getArticleDetails.title">
           <h1 class="text-4xl font-bold mb-6">
-            {{ displayedText }}<span class="cursor">|</span>
+            {{getArticleDetails.title}}
           </h1>
+          <div class="flex gap-1">
+            <svg class="w-5 h-5 text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"/>
+            </svg>
+            <p class="text-gray-200 font-semibold text-sm mb-1">
+              发表于{{ formatDate(getArticleDetails.createdAt) }}
+            </p>
+          </div>
         </div>
       </div>
     </div>

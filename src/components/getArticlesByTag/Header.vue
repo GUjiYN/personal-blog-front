@@ -164,7 +164,7 @@ const typeEffect = () => {
 </style>
 
 <template>
-  <div class="relative bg-cover h-[450px] bg-[url('@/assets/images/img2.jpg')]">
+  <div class="relative bg-cover h-[400px] bg-[url('@/assets/images/img2.jpg')]">
     <div class="absolute top-0 left-0 right-0 bottom-0 bg-black opacity-20"></div>
     <div class="relative">
       <nav
