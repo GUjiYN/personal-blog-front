@@ -163,7 +163,7 @@ const typeEffect = () => {
 </style>
 
 <template>
-  <div class="relative bg-cover h-screen bg-[url('@/assets/images/img2.jpg')]">
+  <div class="relative bg-cover h-[450px] bg-[url('@/assets/images/img2.jpg')]">
     <div class="absolute top-0 left-0 right-0 bottom-0 bg-black opacity-20"></div>
     <div class="relative">
       <nav
@@ -247,7 +247,7 @@ const typeEffect = () => {
       <div class="relative flex items-center justify-center h-full">
         <div class="text-center text-gray-200">
           <h1 class="text-4xl font-bold mb-6">
-            {{ displayedText }}<span class="cursor">|</span>
+            标签
           </h1>
         </div>
       </div>

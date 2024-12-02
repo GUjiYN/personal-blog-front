@@ -11,6 +11,7 @@ import router from "@/router/index.js";
 import {searchArticleDO} from "@/assets/js/DoModel.js";
 import {searchArticleVO} from "@/assets/js/VoModel.js";
 import {searchArticleApi} from "@/api/ArticleApi.js";
+import {useRoute} from "vue-router";
 
 
 const searchArticleList = ref(searchArticleDO); // 使用 articleListDO 存储文章列表
@@ -62,9 +63,9 @@ const goToDetail = (item) => {
   router.push('/article/' + item.aid)
 };
 
-
+const route = useRoute();
 // 响应式数据
-const displayedText = ref('');
+const displayedText = route.params.tname;
 const texts = ["江心秋月白", "凌中的风雨"];
 let textIndex = 0;
 let charIndex = 0;
@@ -163,7 +164,7 @@ const typeEffect = () => {
 </style>
 
 <template>
-  <div class="relative bg-cover h-screen bg-[url('@/assets/images/img2.jpg')]">
+  <div class="relative bg-cover h-[450px] bg-[url('@/assets/images/img2.jpg')]">
     <div class="absolute top-0 left-0 right-0 bottom-0 bg-black opacity-20"></div>
     <div class="relative">
       <nav
@@ -240,14 +241,12 @@ const typeEffect = () => {
           </div>
         </div>
       </nav>
-
-
     </div>
     <div class="relative flex items-center justify-center h-full">
       <div class="relative flex items-center justify-center h-full">
         <div class="text-center text-gray-200">
           <h1 class="text-4xl font-bold mb-6">
-            {{ displayedText }}<span class="cursor">|</span>
+            {{ displayedText }}
           </h1>
         </div>
       </div>

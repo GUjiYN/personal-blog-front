@@ -63,7 +63,7 @@ const getRandomColor = () => {
 <template>
   <div class="relative flex justify-center min-h-screen text-white bg-cover bg-fixed bg-[url('@/assets/images/img5.jpg')]">
     <div class="relative">
-      <div class="grid grid-cols-12 container p-48 gap-6">
+      <div class="grid grid-cols-12 container px-48 py-10 gap-6">
         <div class="col-span-9">
           <div class="grid grid-cols-1 gap-6">
             <div class="bg-gray-100 rounded-lg p-4">
