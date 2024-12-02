@@ -58,23 +58,26 @@ const closeDialogCreateArticle = () => {
 const showDialogCreateArticle = async () => {
   dialogCreateArticle.value = true;
 }
+const handleTagsChange = (value) => {
+  const uniqueTags = [...new Set(value.flatMap(tag => tag.split(/[，,]/).map(t => t.trim()).filter(t => t !== '')))];
+  createArticleV.value.tags = uniqueTags; // 更新为数组
+  console.log("处理后的标签数组:", createArticleV.value.tags);
+};
+
 const CreateArticle = async () => {
   try {
+    console.log("提交前的标签:", createArticleV.value.tags); // 确认为数组
     const payload = {
       ...createArticleV.value,
-      tags: Array.isArray(createArticleV.value.tags)
-          ? createArticleV.value.tags
-          : createArticleV.value.tags.split(',').map(tag => tag.trim()), // 确保 tags 是数组
+      tags: createArticleV.value.tags, // 确保是数组
     };
-    console.log(payload);
-    console.log(localStorage.getItem("AuthorizationToken"));
-    const result2 = await createArticleApi(payload);
-    console.log(result2);
-    createArticleD.value = result2.data;
-    dialogCreateArticle.value = false; // 成功后关闭对话框
+    console.log("提交的 payload:", payload);
+    const result = await createArticleApi(payload);
+    console.log("文章创建成功:", result);
+    dialogCreateArticle.value = false;
     window.location.reload();
   } catch (error) {
-    console.error('创建文章时出错', error);
+    console.error("创建文章时出错:", error);
   }
 };
 
@@ -399,8 +402,11 @@ const typeEffect = () => {
             v-model:value="createArticleV.tags"
             placeholder="请输入标签，按回车添加"
             style="width: 100%;"
+            @change="handleTagsChange"
         >
         </a-select>
+
+
       </a-form-item>
       <a-form-item label="图片">
         <a-upload
@@ -432,6 +438,15 @@ const typeEffect = () => {
 </template>
 
 
-
+<style>
+.ant-select-selection-item {
+  margin-right: 8px;
+  margin-bottom: 4px;
+  display: inline-block;
+  background-color: #f5f5f5; /* 可选，给标签一个背景色 */
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+</style>
 
 

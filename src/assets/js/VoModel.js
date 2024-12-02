@@ -39,7 +39,7 @@ export let searchArticleVO = {
 export let createArticleVO = {
     title:'',
     description:'',
-    tags:'',
+    tags:[],
     image:'',
 }
 
