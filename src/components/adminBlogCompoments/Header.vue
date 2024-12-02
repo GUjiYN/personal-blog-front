@@ -260,7 +260,7 @@ onUnmounted(() => {
               <template #overlay class="bg-black hover:text-white">
                 <a-menu>
                   <a-menu-item>
-                    <button @click="router.push({ name: 'Tag' })">标签</button>
+                    <button @click="router.push({ name: 'AdminTag' })">标签</button>
                   </a-menu-item>
                 </a-menu>
               </template>

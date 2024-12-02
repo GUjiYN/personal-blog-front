@@ -3,7 +3,7 @@ import { onMounted, onUnmounted, ref } from "vue";
 import {
   DownOutlined,
   HomeOutlined,
-  LinkOutlined,
+  LinkOutlined, LogoutOutlined,
   MenuOutlined,
   SearchOutlined,
 } from "@ant-design/icons-vue";
@@ -11,6 +11,8 @@ import router from "@/router/index.js";
 import {articleDetailsDO, searchArticleDO} from "@/assets/js/DoModel.js";
 import { searchArticleVO } from "@/assets/js/VoModel.js";
 import {getArticleDetailsApi, searchArticleApi} from "@/api/ArticleApi.js";
+import {logoutApi} from "@/api/AuthApi.js";
+import {message} from "ant-design-vue";
 
 // 数据定义
 const aid = router.currentRoute.value.params.aid;
@@ -150,6 +152,14 @@ const formatDate = (dateString) => {
     day: '2-digit'
   });
 };
+
+const Logout = async () => {
+  const result = await logoutApi();
+  if (result.output === "Success") {
+    await router.push("/");
+    message.success("登出成功");
+  }
+};
 </script>
 
 
@@ -250,6 +260,14 @@ const formatDate = (dateString) => {
                     @click="toggleSearch">
               <MenuOutlined/>
               <span>关于我</span>
+            </button>
+            <button
+                :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']"
+                class="flex gap-1 items-center space-x-1"
+                @click="Logout"
+            >
+              <LogoutOutlined/>
+              <span class="hidden sm:inline">登出</span>
             </button>
           </div>
         </div>

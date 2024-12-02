@@ -54,6 +54,11 @@ const router = createRouter({
                 component:() => import('@/views/tagPage/TagFrame.vue'),
             },
             {
+                path:'/admin/tag',
+                name:'AdminTag',
+                component:() => import('@/views/adminTagPage/AdminTagFrame.vue')
+            },
+            {
                 //文章详情页面相关路由
                 path: '/article/:aid',
                 name: 'ArticleDetail',
@@ -70,6 +75,11 @@ const router = createRouter({
                 path:'/articleList/:tname',
                 name:'ArticleListByTag',
                 component:()=> import('@/views/getArticlesByTagPage/GetArticlesByTagFrame.vue'),
+            },
+            {
+                path:'/adminArticleList/:tname',
+                name:'AdminArticleListByTag',
+                component:() => import('@/views/adminGetArticlesByTagPage/AdminGetArticlesByTagFrame.vue')
             }
     ]
 })
