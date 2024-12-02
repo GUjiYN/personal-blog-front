@@ -1,34 +1,30 @@
 <script setup>
 import {computed, createVNode, onMounted, ref} from 'vue';
-import {createArticleApi, deleteArticleApi, getArticleDetailsApi, updateArticleApi} from "@/api/ArticleApi.js";
-import {
-  addCommentDO,
-  articleDetailsDO,
-  commentListDO,
-  createArticleDO,
-  tagListDO,
-  updateArticleDO
-} from "@/assets/js/DoModel.js";
-import {useRoute} from "vue-router";
+import {deleteArticleApi, getArticleDetailsApi, updateArticleApi} from "@/api/ArticleApi.js";
+import {articleDetailsDO, commentListDO, tagListDO, updateArticleDO} from "@/assets/js/DoModel.js";
 import {
   CustomerServiceOutlined,
-  ExclamationCircleOutlined, GithubOutlined, HistoryOutlined,
-  LockOutlined, NotificationOutlined, PlusOutlined, ProfileOutlined,
+  ExclamationCircleOutlined,
+  GithubOutlined,
+  HistoryOutlined,
+  LockOutlined,
+  NotificationOutlined,
+  PlusOutlined,
+  ProfileOutlined,
   QqOutlined,
   ScissorOutlined,
   TagOutlined,
   UserOutlined,
 } from "@ant-design/icons-vue";
-import {commentListVO, createArticleVO, deleteArticleVO, tagListVO, updateArticleVO} from "@/assets/js/VoModel.js";
+import {commentListVO, tagListVO, updateArticleVO} from "@/assets/js/VoModel.js";
 import {getTagListApi} from "@/api/TagApi.js";
 import {addCommentApi, getCommentListApi} from "@/api/CommentApi.js";
 import {marked} from 'marked';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import {message} from "ant-design-vue";
+import {message, Modal} from "ant-design-vue";
 import router from "@/router/index.js";
 import {addReplyApi} from "@/api/ReplyApi.js";
-import { Modal } from 'ant-design-vue';
 
 
 const getTagList = ref(tagListDO);
@@ -41,17 +37,17 @@ const commentList = ref(commentListVO);
 const getAddCommentVO = ref({
   aid: router.currentRoute.value.params.aid, // 文章ID
   cname: '', // 评论者名称
-  email:'',
+  email: '',
   cdesc: ''                      // 评论内容
 });
 commentListVO.aid = router.currentRoute.value.params.aid;
 const ReplyDiaLog = ref(false);
 const getAddReplyVO = ref({
   aid: router.currentRoute.value.params.aid,
-  cname:'',
-  email:'',
-  cdesc:'',
-  replyid:'',
+  cname: '',
+  email: '',
+  cdesc: '',
+  replyid: '',
 });
 const totalComments = ref(0); // 总文章数
 const currentPage = ref(1); // 当前页码
@@ -59,7 +55,7 @@ const pageSize = ref(5); // 每页显示的文章数
 commentListVO.page = currentPage;
 commentListVO.size = pageSize;
 const dialogUpdateArticle = ref(false);
-const updateArticleD  = ref(updateArticleDO);
+const updateArticleD = ref(updateArticleDO);
 const updateArticleV = ref(updateArticleVO);
 updateArticleV.aid = router.currentRoute.value.params.aid;
 
@@ -91,7 +87,7 @@ const UpdateArticle = async () => {
     dialogUpdateArticle.value = false;
     window.location.reload();
   } catch (error) {
-    console.error('更新文章时出错',error);
+    console.error('更新文章时出错', error);
   }
 }
 
@@ -251,7 +247,7 @@ const AddReply = async () => {
         cname: getAddReplyVO.value.cname,
         cdesc: getAddReplyVO.value.cdesc,
         createdAt: new Date().toISOString(),
-        replyid:getAddReplyVO.value.replyid
+        replyid: getAddReplyVO.value.replyid
       };
 
       // 找到对应的评论并添加回复
@@ -388,7 +384,7 @@ const goToArticleListByTag = (item) => {
                     </template>
                     <template #author><a>{{ item.cname }}</a></template>
                     <template #avatar>
-                      <a-avatar src="https://joeschmoe.io/api/v1/random" alt="Han Solo" />
+                      <a-avatar alt="Han Solo" src="https://joeschmoe.io/api/v1/random"/>
                     </template>
                     <template #content><p>{{ item.cdesc }}</p></template>
                     <template #datetime>
@@ -405,7 +401,7 @@ const goToArticleListByTag = (item) => {
                       >
                         <template #author><a>{{ reply.cname }}</a></template>
                         <template #avatar>
-                          <a-avatar src="https://joeschmoe.io/api/v1/random" alt="Han Solo" />
+                          <a-avatar alt="Han Solo" src="https://joeschmoe.io/api/v1/random"/>
                         </template>
                         <template #content><p>{{ reply.cdesc }}</p></template>
                         <template #datetime>
@@ -424,21 +420,21 @@ const goToArticleListByTag = (item) => {
                   <!-- 上一页按钮 -->
                   <li>
                     <button
-                        @click="goToPage(currentPage - 1)"
-                        class="inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
                         :disabled="currentPage === 1"
+                        class="inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
+                        @click="goToPage(currentPage - 1)"
                     >
                       <span class="sr-only">Prev Page</span>
                       <svg
-                          xmlns="http://www.w3.org/2000/svg"
                           class="size-3"
-                          viewBox="0 0 20 20"
                           fill="currentColor"
+                          viewBox="0 0 20 20"
+                          xmlns="http://www.w3.org/2000/svg"
                       >
                         <path
-                            fill-rule="evenodd"
-                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
                             clip-rule="evenodd"
+                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                            fill-rule="evenodd"
                         />
                       </svg>
                     </button>
@@ -447,11 +443,11 @@ const goToArticleListByTag = (item) => {
                   <!-- 页码按钮 -->
                   <li v-for="page in totalPages" :key="page">
                     <button
-                        @click="goToPage(page)"
                         :class="[
             'block size-8 rounded border text-center leading-8',
             page === currentPage ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white text-gray-900 border-gray-100'
           ]"
+                        @click="goToPage(page)"
                     >
                       {{ page }}
                     </button>
@@ -460,21 +456,21 @@ const goToArticleListByTag = (item) => {
                   <!-- 下一页按钮 -->
                   <li>
                     <button
-                        @click="goToPage(currentPage + 1)"
-                        class="inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
                         :disabled="currentPage === totalPages"
+                        class="inline-flex size-8 items-center justify-center rounded border border-gray-100 bg-white text-gray-900 rtl:rotate-180"
+                        @click="goToPage(currentPage + 1)"
                     >
                       <span class="sr-only">Next Page</span>
                       <svg
-                          xmlns="http://www.w3.org/2000/svg"
                           class="size-3"
-                          viewBox="0 0 20 20"
                           fill="currentColor"
+                          viewBox="0 0 20 20"
+                          xmlns="http://www.w3.org/2000/svg"
                       >
                         <path
-                            fill-rule="evenodd"
-                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                             clip-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            fill-rule="evenodd"
                         />
                       </svg>
                     </button>
@@ -482,10 +478,10 @@ const goToArticleListByTag = (item) => {
                 </ol>
               </div>
               <div class="flex items-center space-x-3">
-                <a-button @click="showConfirm" type="primary" danger ghost>删除文章</a-button>
+                <a-button danger ghost type="primary" @click="showConfirm">删除文章</a-button>
                 <button
-                    @click="showDialogUpdateArticle"
-                    class="bg-sky-500 py-2 px-4 rounded-lg text-gray-100 hover:bg-sky-400 hover:text-gray-200">
+                    class="bg-sky-500 py-2 px-4 rounded-lg text-gray-100 hover:bg-sky-400 hover:text-gray-200"
+                    @click="showDialogUpdateArticle">
                   修改文章
                 </button>
               </div>
@@ -509,7 +505,7 @@ const goToArticleListByTag = (item) => {
                 </button>
               </div>
               <div class="mt-4 flex justify-center space-x-6">
-                <GithubOutlined  class="text-gray-800 text-2xl"/>
+                <GithubOutlined class="text-gray-800 text-2xl"/>
                 <QqOutlined class="text-gray-800 text-2xl"/>
                 <CustomerServiceOutlined class="text-gray-800 text-2xl"/>
               </div>
@@ -518,15 +514,15 @@ const goToArticleListByTag = (item) => {
           </div>
           <div class="p-4 bg-white rounded-lg text-gray-700">
             <div class="flex gap-1 font-bold mb-4">
-              <NotificationOutlined />
+              <NotificationOutlined/>
               <span>公告</span>
             </div>
             <p class="bg-sky-100 p-4 rounded-lg">一名忙碌的程序员</p>
           </div>
           <div class="p-4 bg-white rounded-lg">
             <div class="text-gray-700 rounded-lg">
-              <div  class="flex gap-1 font-bold mb-4">
-                <HistoryOutlined />
+              <div class="flex gap-1 font-bold mb-4">
+                <HistoryOutlined/>
                 <span>最新文章</span>
               </div>
               <ul class="space-y-2 bg-sky-100 p-4 rounded-lg">
@@ -547,7 +543,7 @@ const goToArticleListByTag = (item) => {
                   :key="index"
                   class="text-gray-700 hover:text-gray-500"
                   @click="goToArticleListByTag(item)">
-                {{item.tname}}
+                {{ item.tname }}
               </button>
             </div>
           </div>
@@ -562,7 +558,7 @@ const goToArticleListByTag = (item) => {
         class="p-4 grid grid-cols-4 justify-items-center w-full"
     >
       <a-form-item class="col-span-4 w-full">
-        <a-input  v-model:value="getAddReplyVO.cname" placeholder="昵称">
+        <a-input v-model:value="getAddReplyVO.cname" placeholder="昵称">
           <template #prefix>
             <UserOutlined style="color: rgba(0, 0, 0, 0.25)"/>
           </template>
@@ -593,28 +589,28 @@ const goToArticleListByTag = (item) => {
         class="p-3  justify-center"
     >
       <a-form-item
-          label="标题"
           :rules="[{ required: true }]"
+          label="标题"
       >
         <a-input v-model:value="updateArticleV.title">
           <template #prefix>
-            <ProfileOutlined />
+            <ProfileOutlined/>
           </template>
         </a-input>
       </a-form-item>
       <a-form-item
-          label="内容"
           :rules="[{ required: true, message: '文章内容不能为空!' }]"
+          label="内容"
       >
         <a-textarea v-model:value="updateArticleV.description"></a-textarea>
       </a-form-item>
       <a-form-item
-          label="标签"
           :rules="[{ required: true}]"
+          label="标签"
       >
         <a-select
-            mode="tags"
             v-model:value="updateArticleV.tags"
+            mode="tags"
             placeholder="请输入标签，按回车添加"
             style="width: 100%;"
         />
@@ -622,7 +618,7 @@ const goToArticleListByTag = (item) => {
       <a-form-item label="图片">
         <a-upload action="/upload.do" list-type="picture-card">
           <div>
-            <PlusOutlined />
+            <PlusOutlined/>
             <div style="margin-top: 8px">Upload</div>
           </div>
         </a-upload>
@@ -639,7 +635,6 @@ const goToArticleListByTag = (item) => {
       </a-button>
     </template>
   </a-modal>
-
 
 
 </template>

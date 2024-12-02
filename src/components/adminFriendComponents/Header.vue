@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { SearchOutlined, LinkOutlined, MenuOutlined, HomeOutlined, DownOutlined } from "@ant-design/icons-vue";
+import {onMounted, onUnmounted, ref} from 'vue';
+import {HomeOutlined, LinkOutlined, MenuOutlined, SearchOutlined} from "@ant-design/icons-vue";
 import router from "@/router/index.js";
 import {searchArticleDO} from "@/assets/js/DoModel.js";
 import {searchArticleVO} from "@/assets/js/VoModel.js";
@@ -108,8 +108,6 @@ onMounted(() => {
 });
 
 
-
-
 // 动态输入和删除效果
 const typeEffect = () => {
   const currentText = texts[textIndex];
@@ -179,7 +177,7 @@ const typeEffect = () => {
         ]"
                 href="/"
             >
-              <img alt="LOGO" class="w-10 h-10 rounded-lg" src="@/assets/images/favicon.ico" />
+              <img alt="LOGO" class="w-10 h-10 rounded-lg" src="@/assets/images/favicon.ico"/>
               <span class="font-semibold text-xl">终端笔谈</span>
             </a>
           </div>
@@ -191,31 +189,33 @@ const typeEffect = () => {
         ]"
                 href="/"
             >
-              <HomeOutlined />
+              <HomeOutlined/>
               <span>首页</span>
             </a>
             <button
-                @click="showDialogSearch"
                 :class="[
           'flex gap-1 items-center space-x-1 transition-all duration-300',
           isScrolled ? 'text-gray-700' : 'text-white'
         ]"
+                @click="showDialogSearch"
             >
-              <SearchOutlined />
+              <SearchOutlined/>
               <span>搜索</span>
             </button>
             <button
-                @click="router.push({ name: 'Friend' })"
                 :class="[
           'flex gap-1 items-center space-x-1 transition-all duration-300',
           isScrolled ? 'text-gray-700' : 'text-white'
         ]"
+                @click="router.push({ name: 'Friend' })"
             >
-              <LinkOutlined />
+              <LinkOutlined/>
               <span>友链</span>
             </button>
-            <button @click="toggleSearch" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-white hover:text-white']" class="flex gap-1 items-center space-x-1">
-              <MenuOutlined />
+            <button :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-white hover:text-white']"
+                    class="flex gap-1 items-center space-x-1"
+                    @click="toggleSearch">
+              <MenuOutlined/>
               <span>关于我</span>
             </button>
           </div>
@@ -234,21 +234,21 @@ const typeEffect = () => {
       </div>
     </div>
   </div>
-    <!--查询文章对话框-->
-    <!-- 搜索对话框 -->
+  <!--查询文章对话框-->
+  <!-- 搜索对话框 -->
   <a-modal v-model:open="dialogSearch" class="w-48" title="搜索">
     <!-- 搜索输入框 -->
     <a-form class="p-4 grid justify-center">
       <a-form-item :rules="[{ required: true }]">
         <a-input
             v-model:value="articleList.keyword"
-            size="large"
             placeholder="请输入文章关键字..."
+            size="large"
             @input="handleInputChange"
         >
-        <template #prefix>
-          <SearchOutlined />
-        </template>
+          <template #prefix>
+            <SearchOutlined/>
+          </template>
         </a-input>
       </a-form-item>
     </a-form>
@@ -256,9 +256,9 @@ const typeEffect = () => {
     <!-- 文章列表 -->
     <a-list
         v-if="searchArticleList.length > 0"
-        class="mt-4"
         :dataSource="searchArticleList"
         bordered
+        class="mt-4"
     >
       <template #renderItem="{ item }">
         <a-list-item>
@@ -281,7 +281,8 @@ const typeEffect = () => {
           class="bg-aspargus mt-4"
           type="primary"
           @click="DialogSearch"
-      >查询</a-button>
+      >查询
+      </a-button>
     </template>
   </a-modal>
 

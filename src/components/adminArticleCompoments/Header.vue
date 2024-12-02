@@ -1,149 +1,136 @@
-<style>
-
-
-
-</style>
-
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { SearchOutlined, LinkOutlined, MenuOutlined, HomeOutlined, DownOutlined } from "@ant-design/icons-vue";
+import { onMounted, onUnmounted, ref } from "vue";
+import {
+  DownOutlined,
+  HomeOutlined,
+  LinkOutlined,
+  MenuOutlined,
+  SearchOutlined,
+} from "@ant-design/icons-vue";
 import router from "@/router/index.js";
-import {searchArticleDO} from "@/assets/js/DoModel.js";
-import {searchArticleVO} from "@/assets/js/VoModel.js";
-import {searchArticleApi} from "@/api/ArticleApi.js";
+import { searchArticleDO } from "@/assets/js/DoModel.js";
+import { searchArticleVO } from "@/assets/js/VoModel.js";
+import { searchArticleApi } from "@/api/ArticleApi.js";
 
+// 数据定义
+const searchArticleList = ref(searchArticleDO); // 存储文章列表
+const articleList = ref(searchArticleVO); // 文章查询参数
+const dialogSearch = ref(false); // 搜索对话框状态
+const displayedText = ref(""); // 动态文字显示
+const isSearchVisible = ref(false); // 搜索框状态
+const lastScrollTop = ref(0); // 上一次滚动位置
+const isScrolled = ref(false); // 是否滚动超过 50px
+const isNavbarVisible = ref(true); // 是否显示导航栏
+const texts = ["江心秋月白", "凌中的风雨"]; // 动态文本内容
+let textIndex = 0;
+let charIndex = 0;
+let isDeleting = false;
 
-const searchArticleList = ref(searchArticleDO); // 使用 articleListDO 存储文章列表
-const articleList = ref(searchArticleVO);
-const dialogSearch = ref(false);
+// 方法定义
 
+// 打开和关闭搜索对话框
 const closeDialogSearch = () => {
   dialogSearch.value = false;
-  articleList.value.keyword = ''; // 清空输入框内容
-  searchArticleList.value = [];   // 清空列表内容
+  articleList.value.keyword = ""; // 清空搜索关键字
+  searchArticleList.value = []; // 清空文章列表
 };
 
-const showDialogSearch = () => dialogSearch.value = true;
+const showDialogSearch = () => {
+  dialogSearch.value = true;
+};
 
-
+// 搜索文章
 const DialogSearch = async () => {
   try {
-    const result = await searchArticleApi(articleList.value); // 传递 VO 对象
-    searchArticleList.value = result.data.records || [];
-    console.log('文章', searchArticleList.value);
-    console.log('查询成功', searchArticleList.value);
+    const result = await searchArticleApi(articleList.value); // 调用接口
+    searchArticleList.value = result.data.records || []; // 更新文章列表
+    console.log("查询成功:", searchArticleList.value);
   } catch (error) {
-    console.error('查询文章时出错：', error);
+    console.error("查询文章时出错:", error);
   }
 };
 
-
-// 输入框变化事件
+// 搜索框输入变化实时触发查询
 const handleInputChange = async () => {
-  await DialogSearch(); // 输入框变化时实时触发查询
+  await DialogSearch();
 };
-
 
 // 高亮匹配关键字
 const highlightText = (text) => {
   const keyword = articleList.value.keyword.trim();
   if (!keyword) return text; // 如果没有关键字，返回原文本
-  const regex = new RegExp(`(${keyword})`, "gi"); // 匹配关键字，忽略大小写
-  // 使用 Tailwind 样式直接包裹匹配关键字
-  return text.replace(
-      regex,
-      `<span class="text-red-500 font-bold">$1</span>`
-  );
+  const regex = new RegExp(`(${keyword})`, "gi"); // 忽略大小写
+  return text.replace(regex, `<span class="text-red-500 font-bold">$1</span>`); // 高亮关键字
 };
 
 // 跳转到文章详情页
 const goToDetail = (item) => {
-  console.log(item.aid);
-  router.push('/article/' + item.aid)
+  console.log("跳转文章:", item.aid);
+  router.push("/article/" + item.aid);
 };
 
-
-// 响应式数据
-const displayedText = ref('');
-const texts = ["江心秋月白", "凌中的风雨"];
-let textIndex = 0;
-let charIndex = 0;
-let isDeleting = false;
-
-
-// 搜索框显示状态
-const isSearchVisible = ref(false);
-
-
-// 切换搜索框显示状态
+// 切换搜索框状态
 const toggleSearch = () => {
   isSearchVisible.value = !isSearchVisible.value;
 };
 
-const lastScrollTop = ref(0); // 记录上一次滚动位置
-const isScrolled = ref(false); // 控制背景是否为白色透明
-const isNavbarVisible = ref(true); // 控制导航栏是否可见
-
+// 处理滚动事件
 const handleScroll = () => {
   const currentScrollTop = window.scrollY;
 
-  if (currentScrollTop > lastScrollTop.value) {
-    // 向下滚动，隐藏导航栏
-    isNavbarVisible.value = false;
-  } else {
-    // 向上滚动，显示导航栏
-    isNavbarVisible.value = true;
-  }
+  // 控制导航栏显示与隐藏
+  isNavbarVisible.value = currentScrollTop <= lastScrollTop.value;
 
-  // 如果滚动距离超过50px，切换为白色透明背景
+  // 控制导航栏背景色透明度
   isScrolled.value = currentScrollTop > 50;
 
   lastScrollTop.value = currentScrollTop; // 更新滚动位置
 };
 
-// 监听滚动事件
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
-});
-
-
-
-
 // 动态输入和删除效果
 const typeEffect = () => {
   const currentText = texts[textIndex];
+
   if (!isDeleting) {
-    // 正在输入
+    // 输入文字
     if (charIndex < currentText.length) {
       displayedText.value += currentText.charAt(charIndex);
       charIndex++;
-      setTimeout(typeEffect, 200); // 控制输入速度
+      setTimeout(typeEffect, 200); // 输入速度
     } else {
-      // 停顿一段时间后开始删除
       setTimeout(() => {
         isDeleting = true;
         typeEffect();
-      }, 1000); // 停顿1秒后开始删除
+      }, 1000); // 停顿后开始删除
     }
   } else {
-    // 正在删除
+    // 删除文字
     if (charIndex > 0) {
       displayedText.value = currentText.substring(0, charIndex - 1);
       charIndex--;
-      setTimeout(typeEffect, 100); // 控制删除速度
+      setTimeout(typeEffect, 100); // 删除速度
     } else {
-      // 删除完成，切换到下一个文本
       isDeleting = false;
-      textIndex = (textIndex + 1) % texts.length; // 循环切换文本
-      setTimeout(typeEffect, 500); // 停顿0.5秒后开始输入
+      textIndex = (textIndex + 1) % texts.length; // 切换到下一个文本
+      setTimeout(typeEffect, 500);
     }
   }
 };
+
+// 生命周期钩子
+
+// 挂载时绑定滚动事件和启动动态输入效果
+onMounted(() => {
+  window.addEventListener("scroll", handleScroll);
+  typeEffect();
+});
+
+// 卸载时移除滚动事件监听
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll);
+});
 </script>
+
 
 <style>
 /* 光标的闪烁动画 */
@@ -182,7 +169,7 @@ const typeEffect = () => {
         ]"
                 href="/"
             >
-              <img alt="LOGO" class="w-10 h-10 rounded-lg" src="@/assets/images/favicon.ico" />
+              <img alt="LOGO" class="w-10 h-10 rounded-lg" src="@/assets/images/favicon.ico"/>
               <span class="font-semibold text-xl">终端笔谈</span>
             </a>
           </div>
@@ -194,38 +181,42 @@ const typeEffect = () => {
         ]"
                 href="/admin/blog"
             >
-              <HomeOutlined />
+              <HomeOutlined/>
               <span>首页</span>
             </a>
             <button
-                @click="showDialogSearch"
                 :class="[
           'flex gap-1 items-center space-x-1 transition-all duration-300',
           isScrolled ? 'text-gray-700' : 'text-white'
         ]"
+                @click="showDialogSearch"
             >
-              <SearchOutlined />
+              <SearchOutlined/>
               <span>搜索</span>
             </button>
             <button
-                @click="router.push({ name: 'Friend' })"
                 :class="[
           'flex gap-1 items-center space-x-1 transition-all duration-300',
           isScrolled ? 'text-gray-700' : 'text-white'
         ]"
+                @click="router.push({ name: 'Friend' })"
             >
-              <LinkOutlined />
+              <LinkOutlined/>
               <span>友链</span>
             </button>
             <a-dropdown>
-              <button @click="toggleSearch" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" class="flex gap-1 items-center space-x-1">
-                <svg class="w-5 h-5" :class="isScrolled ? 'text-gray-700' : 'text-white'" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z"/>
+              <button :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']"
+                      class="flex gap-1 items-center space-x-1"
+                      @click="toggleSearch">
+                <svg :class="isScrolled ? 'text-gray-700' : 'text-white'" aria-hidden="true" class="w-5 h-5"
+                     fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2"/>
                 </svg>
                 <span>归档</span>
-                <DownOutlined />
+                <DownOutlined/>
               </button>
-              <template class="bg-black hover:text-white" #overlay>
+              <template #overlay class="bg-black hover:text-white">
                 <a-menu>
                   <a-menu-item>
                     <button @click="router.push({name:'Tag'})">标签</button>
@@ -233,8 +224,10 @@ const typeEffect = () => {
                 </a-menu>
               </template>
             </a-dropdown>
-            <button @click="toggleSearch" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" class="flex gap-1 items-center space-x-1">
-              <MenuOutlined />
+            <button :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']"
+                    class="flex gap-1 items-center space-x-1"
+                    @click="toggleSearch">
+              <MenuOutlined/>
               <span>关于我</span>
             </button>
           </div>
@@ -261,12 +254,12 @@ const typeEffect = () => {
       <a-form-item :rules="[{ required: true }]">
         <a-input
             v-model:value="articleList.keyword"
-            size="large"
             placeholder="请输入文章关键字..."
+            size="large"
             @input="handleInputChange"
         >
           <template #prefix>
-            <SearchOutlined />
+            <SearchOutlined/>
           </template>
         </a-input>
       </a-form-item>
@@ -275,9 +268,9 @@ const typeEffect = () => {
     <!-- 文章列表 -->
     <a-list
         v-if="searchArticleList.length > 0"
-        class="mt-4"
         :dataSource="searchArticleList"
         bordered
+        class="mt-4"
     >
       <template #renderItem="{ item }">
         <a-list-item>
@@ -300,7 +293,8 @@ const typeEffect = () => {
           class="bg-aspargus mt-4"
           type="primary"
           @click="DialogSearch"
-      >查询</a-button>
+      >查询
+      </a-button>
     </template>
   </a-modal>
 

@@ -1,7 +1,15 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { SearchOutlined, LinkOutlined, MenuOutlined, HomeOutlined, DownOutlined,
-  EditOutlined, PlusOutlined, LogoutOutlined,TagsOutlined,ProfileOutlined,ReadOutlined
+import {onMounted, onUnmounted, ref} from 'vue';
+import {
+  DownOutlined,
+  EditOutlined,
+  HomeOutlined,
+  LinkOutlined,
+  LogoutOutlined,
+  MenuOutlined,
+  PlusOutlined,
+  ProfileOutlined,
+  SearchOutlined
 } from "@ant-design/icons-vue";
 import router from "@/router/index.js";
 import {createArticleDO, searchArticleDO} from "@/assets/js/DoModel.js";
@@ -10,66 +18,75 @@ import {createArticleApi, searchArticleApi} from "@/api/ArticleApi.js";
 import {logoutApi} from "@/api/AuthApi.js";
 import {message} from "ant-design-vue";
 
-const searchArticleList = ref(searchArticleDO); // 使用 articleListDO 存储文章列表
+// 数据定义
+const searchArticleList = ref(searchArticleDO);
 const articleList = ref(searchArticleVO);
 const dialogSearch = ref(false);
 const dialogCreateArticle = ref(false);
-const createArticleD  = ref(createArticleDO);
+const createArticleD = ref(createArticleDO);
 const createArticleV = ref(createArticleVO);
+const fileList = ref([]);
+const displayedText = ref('');
+const texts = ["Petrichor"];
+const isSearchVisible = ref(false);
+const lastScrollTop = ref(0);
+const isScrolled = ref(false);
+const isNavbarVisible = ref(true);
+let textIndex = 0;
+let charIndex = 0;
+let isDeleting = false;
 
+// 方法定义
 const closeDialogSearch = () => {
   dialogSearch.value = false;
-  articleList.value.keyword = ''; // 清空输入框内容
-  searchArticleList.value = [];   // 清空列表内容
+  articleList.value.keyword = '';
+  searchArticleList.value = [];
 };
 
-const showDialogSearch = () => dialogSearch.value = true;
+const showDialogSearch = () => {
+  dialogSearch.value = true;
+};
+
 const DialogSearch = async () => {
   try {
-    const result1 = await searchArticleApi(articleList.value); // 传递 VO 对象
-    searchArticleList.value = result1.data.records || [];
-    console.log('文章', searchArticleList.value);
-    console.log('查询成功', searchArticleList.value);
+    const result = await searchArticleApi(articleList.value);
+    searchArticleList.value = result.data.records || [];
+    console.log("查询成功:", searchArticleList.value);
   } catch (error) {
-    console.error('查询文章时出错：', error);
+    console.error("查询文章时出错:", error);
   }
 };
-
-
-const fileList = ref([]); // 存储上传文件列表
 
 const handleImageChange = (info) => {
   if (info.file.status === 'done') {
-    // 图片上传成功
-    const fileUrl = info.file.response.url; // 假设接口返回的图片 URL 存在 response.url 中
-    createArticleV.value.image = fileUrl; // 将图片 URL 存入 createArticleV 对象中
-    console.log('图片上传成功', fileUrl);
+    const fileUrl = info.file.response.url;
+    createArticleV.value.image = fileUrl;
+    console.log("图片上传成功:", fileUrl);
   } else if (info.file.status === 'error') {
-    // 图片上传失败
-    console.error('图片上传失败');
+    console.error("图片上传失败");
   }
 };
 
-
 const closeDialogCreateArticle = () => {
   dialogCreateArticle.value = false;
+};
 
-}
-const showDialogCreateArticle = async () => {
+const showDialogCreateArticle = () => {
   dialogCreateArticle.value = true;
-}
+};
+
 const handleTagsChange = (value) => {
   const uniqueTags = [...new Set(value.flatMap(tag => tag.split(/[，,]/).map(t => t.trim()).filter(t => t !== '')))];
-  createArticleV.value.tags = uniqueTags; // 更新为数组
+  createArticleV.value.tags = uniqueTags;
   console.log("处理后的标签数组:", createArticleV.value.tags);
 };
 
 const CreateArticle = async () => {
   try {
-    console.log("提交前的标签:", createArticleV.value.tags); // 确认为数组
+    console.log("提交前的标签:", createArticleV.value.tags);
     const payload = {
       ...createArticleV.value,
-      tags: createArticleV.value.tags, // 确保是数组
+      tags: createArticleV.value.tags,
     };
     console.log("提交的 payload:", payload);
     const result = await createArticleApi(payload);
@@ -81,126 +98,73 @@ const CreateArticle = async () => {
   }
 };
 
-
 const Logout = async () => {
-  const result3 = await logoutApi();
-  if (result3.output === "Success") {
+  const result = await logoutApi();
+  if (result.output === "Success") {
     await router.push("/");
-    message.success("登出成功")
+    message.success("登出成功");
   }
-}
-
-
-// 输入框变化事件
-const handleInputChange = async () => {
-  await DialogSearch(); // 输入框变化时实时触发查询
 };
 
+const handleInputChange = async () => {
+  await DialogSearch();
+};
 
-// 高亮匹配关键字
 const highlightText = (text) => {
   const keyword = articleList.value.keyword.trim();
-  if (!keyword) return text; // 如果没有关键字，返回原文本
-  const regex = new RegExp(`(${keyword})`, "gi"); // 匹配关键字，忽略大小写
-  // 使用 Tailwind 样式直接包裹匹配关键字
-  return text.replace(
-      regex,
-      `<span class="text-red-500 font-bold">$1</span>`
-  );
+  if (!keyword) return text;
+  const regex = new RegExp(`(${keyword})`, "gi");
+  return text.replace(regex, `<span class="text-red-500 font-bold">$1</span>`);
 };
 
-// 跳转到文章详情页
 const goToDetail = (item) => {
   console.log(item.aid);
-  router.push('/article/' + item.aid)
+  router.push('/article/' + item.aid);
 };
-
-
-// 响应式数据
-const displayedText = ref('');
-const texts = ["Petrichor", "凌中的风雨"];
-let textIndex = 0;
-let charIndex = 0;
-let isDeleting = false;
-
-
-// 搜索框显示状态
-const isSearchVisible = ref(false);
-
-
-// 切换搜索框显示状态
-const toggleSearch = () => {
-  isSearchVisible.value = !isSearchVisible.value;
-};
-
-const lastScrollTop = ref(0); // 记录上一次滚动位置
-const isScrolled = ref(false); // 控制背景是否为白色透明
-const isNavbarVisible = ref(true); // 控制导航栏是否可见
 
 const handleScroll = () => {
   const currentScrollTop = window.scrollY;
-
-  if (currentScrollTop > lastScrollTop.value) {
-    // 向下滚动，隐藏导航栏
-    isNavbarVisible.value = false;
-  } else {
-    // 向上滚动，显示导航栏
-    isNavbarVisible.value = true;
-  }
-
-  // 如果滚动距离超过50px，切换为白色透明背景
+  isNavbarVisible.value = currentScrollTop <= lastScrollTop.value;
   isScrolled.value = currentScrollTop > 50;
-
-  lastScrollTop.value = currentScrollTop; // 更新滚动位置
+  lastScrollTop.value = currentScrollTop;
 };
 
-// 监听滚动事件
+const typeEffect = () => {
+  const currentText = texts[textIndex];
+  if (!isDeleting) {
+    if (charIndex < currentText.length) {
+      displayedText.value += currentText.charAt(charIndex);
+      charIndex++;
+      setTimeout(typeEffect, 200);
+    } else {
+      setTimeout(() => {
+        isDeleting = true;
+        typeEffect();
+      }, 1000);
+    }
+  } else {
+    if (charIndex > 0) {
+      displayedText.value = currentText.substring(0, charIndex - 1);
+      charIndex--;
+      setTimeout(typeEffect, 100);
+    } else {
+      isDeleting = false;
+      textIndex = (textIndex + 1) % texts.length;
+      setTimeout(typeEffect, 500);
+    }
+  }
+};
+
 onMounted(() => {
   window.addEventListener('scroll', handleScroll);
+  typeEffect();
 });
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
-onMounted(() => {
-  typeEffect(); // 确保在挂载时启动输入效果
-});
-
-
-
-// 动态输入和删除效果
-const typeEffect = () => {
-  const currentText = texts[textIndex];
-  if (!isDeleting) {
-    // 正在输入
-    if (charIndex < currentText.length) {
-      displayedText.value += currentText.charAt(charIndex);
-      charIndex++;
-      setTimeout(typeEffect, 200); // 控制输入速度
-    } else {
-      // 停顿一段时间后开始删除
-      setTimeout(() => {
-        isDeleting = true;
-        typeEffect();
-      }, 1000); // 停顿1秒后开始删除
-    }
-  } else {
-    // 正在删除
-    if (charIndex > 0) {
-      displayedText.value = currentText.substring(0, charIndex - 1);
-      charIndex--;
-      setTimeout(typeEffect, 100); // 控制删除速度
-    } else {
-      // 删除完成，切换到下一个文本
-      isDeleting = false;
-      textIndex = (textIndex + 1) % texts.length; // 循环切换文本
-      setTimeout(typeEffect, 500); // 停顿0.5秒后开始输入
-    }
-  }
-};
-
-
 </script>
+
 
 <style>
 /* 光标的闪烁动画 */
@@ -225,91 +189,108 @@ const typeEffect = () => {
     <div class="relative">
       <nav
           :class="[
-    'py-3 px-5 fixed top-0 left-0 right-0 z-50 flex justify-center transition-all duration-300',
-    isScrolled ? 'bg-white/70 text-gray-700' : 'bg-transparent text-white',
-    isNavbarVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
-  ]"
+              'py-3 px-5 fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+              isScrolled ? 'bg-white/70 text-gray-700' : 'bg-transparent text-white',
+              isNavbarVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+            ]"
       >
-        <div class="grid grid-cols-12 w-full justify-center items-center">
-          <div class="col-span-8 space-x-2">
+        <!-- 网格布局 -->
+        <div class="grid grid-cols-12 w-full items-center">
+          <!-- LOGO -->
+          <div class="col-span-6 md:col-span-4 flex items-center space-x-2">
             <a
                 :class="[
-          'flex items-center gap-2 transition-all duration-300',
-          isScrolled ? 'text-gray-700' : 'text-white'
-        ]"
+                  'flex items-center gap-2 transition-all duration-300',
+                  isScrolled ? 'text-gray-700' : 'text-white'
+                ]"
                 href="/"
             >
-              <img alt="LOGO" class="w-10 h-10 rounded-lg" src="@/assets/images/favicon.ico" />
-              <span class="font-semibold text-xl">终端笔谈</span>
+              <img alt="LOGO" class="w-10 h-10 rounded-lg" src="@/assets/images/favicon.ico"/>
+              <span class="font-semibold text-xl hidden sm:block">终端笔谈</span>
             </a>
           </div>
-          <div class="col-span-4 flex space-x-6 justify-end text-md">
+
+          <!-- 菜单项 -->
+          <div class="col-span-6 md:col-span-8 flex items-center justify-end space-x-4 text-md">
+            <!-- 小屏隐藏文字 -->
             <a
                 :class="[
-          'flex gap-1 items-center space-x-1 transition-all duration-300',
+          'flex gap-1 items-center transition-all duration-300',
           isScrolled ? 'text-gray-700' : 'text-white'
         ]"
                 href="/admin/blog"
             >
-              <HomeOutlined />
-              <span>首页</span>
+              <HomeOutlined/>
+              <span class="hidden sm:inline">首页</span>
             </a>
             <button
-                @click="showDialogSearch"
                 :class="[
-          'flex gap-1 items-center space-x-1 transition-all duration-300',
+          'flex gap-1 items-center transition-all duration-300',
           isScrolled ? 'text-gray-700' : 'text-white'
         ]"
+                @click="showDialogSearch"
             >
-              <SearchOutlined />
-              <span>搜索</span>
+              <SearchOutlined/>
+              <span class="hidden sm:inline">搜索</span>
             </button>
             <button
-                @click="router.push({ name: 'Friend' })"
                 :class="[
-          'flex gap-1 items-center space-x-1 transition-all duration-300',
+          'flex gap-1 items-center transition-all duration-300',
           isScrolled ? 'text-gray-700' : 'text-white'
         ]"
+                @click="router.push({ name: 'Friend' })"
             >
-              <LinkOutlined />
-              <span>友链</span>
+              <LinkOutlined/>
+              <span class="hidden sm:inline">友链</span>
             </button>
             <a-dropdown>
-              <button @click="toggleSearch" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" class="flex gap-1 items-center space-x-1">
-                <svg class="w-5 h-5" :class="isScrolled ? 'text-gray-700' : 'text-white'" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z"/>
+              <button
+                  :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']"
+                  class="flex gap-1 items-center space-x-1"
+                  @click="toggleSearch"
+              >
+                <svg :class="isScrolled ? 'text-gray-700' : 'text-white'" aria-hidden="true" class="w-5 h-5"
+                     fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2"/>
                 </svg>
-                <span>归档</span>
-                <DownOutlined />
+                <span class="hidden sm:inline">归档</span>
+                <DownOutlined/>
               </button>
-              <template class="bg-black hover:text-white" #overlay>
+              <template #overlay class="bg-black hover:text-white">
                 <a-menu>
                   <a-menu-item>
-                    <button @click="router.push({name:'Tag'})">标签</button>
+                    <button @click="router.push({ name: 'Tag' })">标签</button>
                   </a-menu-item>
                 </a-menu>
               </template>
             </a-dropdown>
             <button
-                :class="['flex gap-1 items-center space-x-1 transition-all duration-300',isScrolled ? 'text-gray-700'
-                : 'text-white']"
-                @click="showDialogCreateArticle "
+                :class="['flex gap-1 items-center transition-all duration-300', isScrolled ? 'text-gray-700' : 'text-white']"
+                @click="showDialogCreateArticle"
             >
-              <EditOutlined />
-              <span>创建博客</span>
+              <EditOutlined/>
+              <span class="hidden sm:inline">创建博客</span>
             </button>
-            <button @click="toggleSearch" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" class="flex gap-1 items-center space-x-1">
-              <MenuOutlined />
-              <span>关于我</span>
+            <button
+                :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']"
+                class="flex gap-1 items-center space-x-1"
+                @click="toggleSearch"
+            >
+              <MenuOutlined/>
+              <span class="hidden sm:inline">关于我</span>
             </button>
-            <button @click="Logout" :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']" class="flex gap-1 items-center space-x-1">
-              <LogoutOutlined />
-              <span>登出</span>
+            <button
+                :class="[isScrolled ? 'text-gray-700 hover:text-gray-700' : 'text-gray-200 hover:text-white']"
+                class="flex gap-1 items-center space-x-1"
+                @click="Logout"
+            >
+              <LogoutOutlined/>
+              <span class="hidden sm:inline">登出</span>
             </button>
           </div>
         </div>
       </nav>
-
 
     </div>
     <div class="relative flex items-center justify-center h-full">
@@ -322,30 +303,30 @@ const typeEffect = () => {
       </div>
     </div>
   </div>
-    <!--查询文章对话框-->
-    <!-- 搜索对话框 -->
+  <!--查询文章对话框-->
+  <!-- 搜索对话框 -->
   <a-modal v-model:open="dialogSearch" class="w-48" title="搜索">
     <!-- 搜索输入框 -->
     <a-form class="p-4 grid justify-center">
       <a-form-item :rules="[{ required: true }]">
         <a-input
             v-model:value="articleList.keyword"
-            size="large"
             placeholder="请输入文章关键字..."
+            size="large"
             @input="handleInputChange"
         >
-        <template #prefix>
-          <SearchOutlined />
-        </template>
+          <template #prefix>
+            <SearchOutlined/>
+          </template>
         </a-input>
       </a-form-item>
     </a-form>
     <!-- 文章列表 -->
     <a-list
         v-if="searchArticleList.length > 0"
-        class="mt-4"
         :dataSource="searchArticleList"
         bordered
+        class="mt-4"
     >
       <template #renderItem="{ item }">
         <a-list-item>
@@ -367,7 +348,8 @@ const typeEffect = () => {
           class="bg-aspargus mt-4"
           type="primary"
           @click="DialogSearch"
-      >查询</a-button>
+      >查询
+      </a-button>
     </template>
   </a-modal>
 
@@ -377,29 +359,29 @@ const typeEffect = () => {
         class="p-3  justify-center"
     >
       <a-form-item
-          label="标题"
           :rules="[{ required: true }]"
+          label="标题"
       >
-        <a-input  v-model:value="createArticleV.title">
+        <a-input v-model:value="createArticleV.title">
           <template #prefix>
-            <ProfileOutlined />
+            <ProfileOutlined/>
           </template>
         </a-input>
       </a-form-item>
       <a-form-item
-          label="内容"
           :rules="[{ required: true, message: '文章内容不能为空!' }]"
+          label="内容"
       >
-      <a-textarea v-model:value="createArticleV.description">
-      </a-textarea>
+        <a-textarea v-model:value="createArticleV.description">
+        </a-textarea>
       </a-form-item>
       <a-form-item
-          label="标签"
           :rules="[{ required: true}]"
+          label="标签"
       >
         <a-select
-            mode="tags"
             v-model:value="createArticleV.tags"
+            mode="tags"
             placeholder="请输入标签，按回车添加"
             style="width: 100%;"
             @change="handleTagsChange"
@@ -410,16 +392,16 @@ const typeEffect = () => {
       </a-form-item>
       <a-form-item label="图片">
         <a-upload
+            :file-list="fileList"
+            :on-change="handleImageChange"
+            :show-upload-list="false"
             action="/upload.do"
-        list-type="picture-card"
-        :on-change="handleImageChange"
-        :file-list="fileList"
-        :show-upload-list="false"
+            list-type="picture-card"
         >
-        <div>
-          <PlusOutlined />
-          <div style="margin-top: 8px">Upload</div>
-        </div>
+          <div>
+            <PlusOutlined/>
+            <div style="margin-top: 8px">Upload</div>
+          </div>
         </a-upload>
       </a-form-item>
     </a-form>
@@ -436,17 +418,5 @@ const typeEffect = () => {
   </a-modal>
 
 </template>
-
-
-<style>
-.ant-select-selection-item {
-  margin-right: 8px;
-  margin-bottom: 4px;
-  display: inline-block;
-  background-color: #f5f5f5; /* 可选，给标签一个背景色 */
-  padding: 4px 8px;
-  border-radius: 4px;
-}
-</style>
 
 
