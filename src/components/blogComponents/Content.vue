@@ -90,7 +90,7 @@ const goToArticleListByTag = (item) => {
   <div class="relative flex justify-center min-h-screen text-white bg-cover bg-fixed bg-[url('@/assets/images/img5.jpg')]">
     <div class="absolute top-0 left-0 right-0 bottom-0 bg-black opacity-20"></div>
     <div class="relative">
-      <div class="grid grid-cols-12 container p-48 gap-6">
+      <div class="grid grid-cols-12 container px-48 py-12 gap-6">
         <div class="col-span-9">
           <div class="grid grid-cols-1 gap-6">
             <div v-for="(item, index) in getArticleList" :key="index" class="bg-gray-100 rounded-lg h-64 flex">

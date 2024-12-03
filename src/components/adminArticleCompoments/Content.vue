@@ -307,7 +307,7 @@ const goToArticleListByTag = (item) => {
 <template>
   <div class="relative flex justify-center min-h-screen  bg-cover bg-fixed bg-[url('@/assets/images/img5.jpg')]">
     <div class="relative">
-      <div class="grid grid-cols-12 container p-48 gap-6">
+      <div class="grid grid-cols-12 container px-48 py-12 gap-6">
         <div class="col-span-9">
           <div class="grid grid-cols-1 gap-6">
             <div class="bg-white rounded-lg">
