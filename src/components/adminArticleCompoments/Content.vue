@@ -289,9 +289,25 @@ const formatDate = (dateString) => {
 };
 
 
-// 使用 computed 属性将 Markdown 转换为 HTML
+
 const articleContentHtml = computed(() => {
-  return getArticleDetails.value ? marked(getArticleDetails.value.description) : '';
+  // 确保 getArticleDetails.value 存在并且包含标题、时间和内容
+  if (getArticleDetails.value) {
+    const description = getArticleDetails.value.description || '';
+
+    // 渲染标题、时间和内容，并应用 Markdown 渲染
+    return `
+      <div>${marked(description)}</div>
+    `;
+  } else {
+    return ''; // 如果没有文章内容则返回空
+  }
+});
+
+
+marked.setOptions({
+  breaks: true,    // 启用换行符（<br> 标签）
+  gfm: true,       // 启用 GitHub Flavored Markdown
 });
 
 dayjs.extend(relativeTime);
@@ -301,6 +317,8 @@ const goToArticleListByTag = (item) => {
   console.log(item.tname);
   router.push('/articleList/' + item.tname);
 }
+
+
 </script>
 
 
@@ -311,13 +329,9 @@ const goToArticleListByTag = (item) => {
         <div class="col-span-9">
           <div class="grid grid-cols-1 gap-6">
             <div class="bg-white rounded-lg">
-              <div class="p-4" v-if="getArticleDetails && getArticleDetails.title">
-                <h1>{{ getArticleDetails.title }}</h1>
+              <div v-if="getArticleDetails && getArticleDetails.title">
                 <!-- 使用 v-html 渲染 Markdown 转换后的 HTML -->
-                <div v-html="articleContentHtml">
-
-                </div>
-                <small>发布于：{{ getArticleDetails.createdAt }}</small>
+                <div v-html="articleContentHtml" class="m-8 text-md"></div>
               </div>
               <div v-else>
                 <p>加载文章内容中...</p>

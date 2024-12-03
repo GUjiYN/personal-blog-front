@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from "vue";
+import {computed, onMounted, onUnmounted, ref} from "vue";
 import {
   DownOutlined,
   HomeOutlined,
@@ -13,6 +13,7 @@ import { searchArticleVO } from "@/assets/js/VoModel.js";
 import {getArticleDetailsApi, searchArticleApi} from "@/api/ArticleApi.js";
 import {logoutApi} from "@/api/AuthApi.js";
 import {message} from "ant-design-vue";
+import {marked} from 'marked';
 
 // 数据定义
 const aid = router.currentRoute.value.params.aid;
@@ -160,6 +161,26 @@ const Logout = async () => {
     message.success("登出成功");
   }
 };
+
+const articleContentHtml = computed(() => {
+  // 确保 getArticleDetails.value 存在并且包含标题、时间和内容
+  if (getArticleDetails.value) {
+    const title = getArticleDetails.value.title || '';
+
+    // 渲染标题、时间和内容，并应用 Markdown 渲染
+    return `
+      <div>${marked(title)}</div>
+    `;
+  } else {
+    return ''; // 如果没有文章内容则返回空
+  }
+});
+
+
+marked.setOptions({
+  breaks: true,    // 启用换行符（<br> 标签）
+  gfm: true,       // 启用 GitHub Flavored Markdown
+});
 </script>
 
 
@@ -277,9 +298,7 @@ const Logout = async () => {
     <div class="relative flex h-full">
       <div class="relative flex items-end h-full">
         <div class="text-center text-gray-200 mb-6 ml-48"  v-if="getArticleDetails && getArticleDetails.title">
-          <h1 class="text-4xl font-bold mb-6">
-            {{getArticleDetails.title}}
-          </h1>
+          <div class="text-4xl font-bold" v-html="articleContentHtml"></div>
           <div class="flex gap-1">
             <svg class="w-5 h-5 text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"/>

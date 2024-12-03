@@ -17,8 +17,13 @@ import {createArticleVO, searchArticleVO} from "@/assets/js/VoModel.js";
 import {createArticleApi, searchArticleApi} from "@/api/ArticleApi.js";
 import {logoutApi} from "@/api/AuthApi.js";
 import {message} from "ant-design-vue";
+import Prism from 'prismjs';
+import 'prismjs/themes/prism.css';  // 你可以选择不同的主题
+
 
 // 数据定义
+const isCode = ref(false);
+const highlightedCode = ref('');
 const searchArticleList = ref(searchArticleDO);
 const articleList = ref(searchArticleVO);
 const dialogSearch = ref(false);
@@ -37,6 +42,18 @@ let charIndex = 0;
 let isDeleting = false;
 
 // 方法定义
+// 高亮代码的逻辑
+const highlightCode = () => {
+  const code = createArticleV.value.description;
+  try {
+    // 尝试高亮代码
+    highlightedCode.value = Prism.highlight(code, Prism.languages.javascript, 'javascript');
+    isCode.value = true;
+  } catch (e) {
+    isCode.value = false;
+  }
+};
+
 const closeDialogSearch = () => {
   dialogSearch.value = false;
   articleList.value.keyword = '';
@@ -372,7 +389,7 @@ onUnmounted(() => {
           :rules="[{ required: true, message: '文章内容不能为空!' }]"
           label="内容"
       >
-        <a-textarea v-model:value="createArticleV.description">
+        <a-textarea @input="highlightCode" :autosize="{ minRows: 1 }" v-model:value="createArticleV.description">
         </a-textarea>
       </a-form-item>
       <a-form-item
@@ -416,7 +433,6 @@ onUnmounted(() => {
       </a-button>
     </template>
   </a-modal>
-
 </template>
 
 
