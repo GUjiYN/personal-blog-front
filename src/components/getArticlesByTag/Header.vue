@@ -66,10 +66,6 @@ const goToDetail = (item) => {
 const route = useRoute();
 // 响应式数据
 const displayedText = route.params.tname;
-const texts = ["江心秋月白", "凌中的风雨"];
-let textIndex = 0;
-let charIndex = 0;
-let isDeleting = false;
 
 
 // 搜索框显示状态
