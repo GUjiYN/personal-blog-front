@@ -62,6 +62,14 @@ const fetchArticles = async () => {
   }
 };
 
+const latestArticles = computed(() => {
+  if (Array.isArray(getArticleList.value)) {
+    return getArticleList.value.slice(0, 3); // 取最新的三篇文章
+  } else {
+    return []; // 如果不是数组，返回空数组
+  }
+});
+
 // 跳转到指定页码
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
@@ -120,7 +128,7 @@ onMounted(() => {
                   />
                 </div>
                 <div class="flex-1 flex-col p-8">
-                  <button class="text-2xl font-bold" @click="goToDetail(item)">{{ item.title }}</button>
+                  <button class="text-2xl font-bold transform hover:scale-110 transition-transform duration-500 hover:text-sky-700/85" @click="goToDetail(item)">{{ item.title }}</button>
                   <div class="flex gap-1">
                     <svg aria-hidden="true" class="w-5 h-5 text-sky-700/85" fill="none"
                          height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -136,7 +144,7 @@ onMounted(() => {
               </div>
               <div v-else class="flex w-full text-gray-700 rounded-r-lg justify-end items-center">
                 <div class="flex-1 flex-col p-8">
-                  <button class="text-2xl font-bold mb-1" @click="goToDetail(item)">{{ item.title }}</button>
+                  <button class="text-2xl font-bold mb-1 transform hover:scale-110 transition-transform duration-500 hover:text-sky-700/85" @click="goToDetail(item)">{{ item.title }}</button>
                   <div class="flex gap-1">
                     <svg aria-hidden="true" class="w-5 h-5 text-sky-700/85" fill="none"
                          height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -261,9 +269,10 @@ onMounted(() => {
                 <span>最新文章</span>
               </div>
               <ul class="space-y-2 bg-sky-100 p-4 rounded-lg">
-                <li><a class="hover:underline" href="#">Java 库上传 Maven 中央仓库</a></li>
-                <li><a class="hover:underline" href="#">存活证明</a></li>
-                <li><a class="hover:underline" href="#">安卓开发学习记录 [一]</a></li>
+                <!-- 显示最新的三篇文章 -->
+                <li v-for="(item, index) in latestArticles" :key="index">
+                  <a class="hover:underline" :href="'/article/' + item.aid">{{ item.title }}</a>
+                </li>
               </ul>
             </div>
           </div>
