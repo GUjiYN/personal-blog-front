@@ -20,6 +20,7 @@ const getTagList = ref(tagListDO);
 const tagList = ref(tagListVO);
 const getArticleByTag = ref(null);
 const route = useRoute();
+const displayedText = route.params.tname;
 
 /**
  * 获取标签列表
@@ -66,11 +67,28 @@ const goToArticleListByTag = (item) => {
           <div class="grid grid-cols-1 gap-6">
             <div class="bg-gray-100 rounded-lg h-auto flex p-8">
               <ol class="relative border-s border-gray-200" >
+                <li class="ms-6 mb-8">
+                  <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -start-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
+                    <svg class="w-6 h-6 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5 7h14M5 12h14M5 17h14"/>
+                    </svg>
+                  </span>
+                  <h3 class="mb-1 text-lg font-semibold text-gray-900">标签 - {{displayedText}}</h3>
+                </li>
                 <li class="mb-10 ms-4"  v-for="(item, index) in getArticleByTag" :key="index">
                   <div class="flex flex-col">
                     <div class="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -start-1.5 border border-white"></div>
-                    <time class="mb-1 text-sm font-normal leading-none text-gray-400">{{ formatDate(item.createdAt)}}</time>
-                    <button @click="goToDetail(item)" class="text-lg font-semibold text-gray-900 text-left">{{item.title}}</button>
+                    <div class=" flex text-xs text-blue-600">
+                      <span>
+                        <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"/>
+                        </svg>
+                      </span>
+                      <span> {{ formatDate(item.createdAt)}}</span>
+                    </div>
+                    <button @click="goToDetail(item)" class="text-lg text-gray-900 text-left transform hover:translate-x-2 hover:text-blue-700 transition-transform duration-300">
+                      {{ item.title }}
+                    </button>
                   </div>
                 </li>
               </ol>

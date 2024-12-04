@@ -90,7 +90,6 @@ const goToArticleListByTag = (item) => {
                     <button @click="goToDetail(item)" class="text-lg text-gray-900 text-left transform hover:translate-x-2 hover:text-blue-700 transition-transform duration-300">
                       {{ item.title }}
                     </button>
-
                   </div>
                 </li>
               </ol>
