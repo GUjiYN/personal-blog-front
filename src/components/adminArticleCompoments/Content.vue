@@ -398,7 +398,12 @@ const goToArticleListByTag = (item) => {
                       </button>
                     </div>
                   </div>
+
                 </form>
+                <div class="mt-6 ml-6 flex space-x-2">
+                  <button @click="showDialogUpdateArticle"  class="rounded bg-sky-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-sky-600">修改文章</button>
+                  <button @click="showConfirm"  class="rounded bg-red-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-600">删除文章</button>
+                </div>
                 <div class="p-4">
                   <a-comment
                       v-for="(item, index) in getCommentList"

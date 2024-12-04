@@ -1,6 +1,6 @@
 <script setup>
 import {QqOutlined, TagOutlined, UserOutlined,CalendarOutlined,GithubOutlined, CustomerServiceOutlined, NotificationOutlined, HistoryOutlined } from "@ant-design/icons-vue";
-import {computed, onMounted, ref} from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import {tagListDO} from "@/assets/js/DoModel.js";
 import {tagListVO} from "@/assets/js/VoModel.js";
 import {getTagListApi} from "@/api/TagApi.js";
@@ -84,18 +84,17 @@ const goToArticleListByTag = (item) => {
   router.push('/articleList/' + item.tname);
 }
 
-const articleContentHtml = computed(() => {
-  if (getArticleList.value.data) {
-    const title = getArticleList.value.data.title || '';
 
-    // 渲染标题、时间和内容，并应用 Markdown 渲染
-    return `
-      <div>${marked(title)}</div>
-    `;
-  } else {
-    return ''; // 如果没有文章内容则返回空
+
+const articleDescHtml = computed(() => {
+  if (getArticleList.value && getArticleList.value.length > 0) {
+    const title = getArticleList.value[0].record ? getArticleList.value[0].record.title : '';
+    return `<div>${marked(title)}</div>`;
   }
+  return ''; // 如果没有title则返回空
 });
+
+
 
 
 marked.setOptions({
@@ -123,7 +122,7 @@ marked.setOptions({
                 </div>
                 <div class="flex-1 flex-col p-8">
                   <button class="text-2xl font-bold" @click="goToDetail(item)">{{ item.title }}</button>
-                  <div class="text-4xl font-bold" v-html="articleContentHtml"></div>
+                  <div class="text-4xl font-bold" v-html="articleDescHtml"></div>
                   <div class="flex gap-1">
                     <svg class="w-5 h-5 text-sky-700/85" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                       <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"/>
