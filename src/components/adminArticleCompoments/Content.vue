@@ -384,7 +384,7 @@ const goToArticleListByTag = (item) => {
                       <button
                           type="button"
                           @click="router.replace({name:'Login'})"
-                          class="rounded bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-gray-600"
+                          class="rounded bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-300"
                       >
                         登录
                       </button>
@@ -476,7 +476,7 @@ const goToArticleListByTag = (item) => {
                         @click="goToPage(page)"
                         :class="[
             'block size-8 rounded border text-center leading-8',
-            page === currentPage ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white text-gray-900 border-gray-100'
+            page === currentPage ? ' bg-indigo-500 border-indigo-500 text-white hover:bg-indigo-600' : 'bg-white text-gray-900 border-gray-100'
           ]"
                     >
                       {{ page }}
