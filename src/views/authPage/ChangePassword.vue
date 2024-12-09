@@ -13,7 +13,7 @@
         <div class="container p-3">
           <div class="row-auto">
             <div class="row-span-1 mb-8 text-center font-semibold text-2xl text-sky-600">
-              终端笔谈 - 登录
+              终端笔谈 - 修改密码
             </div>
             <div class="row-span-1">
               <a-form
@@ -28,27 +28,35 @@
                   </a-input>
                 </a-form-item>
                 <a-form-item>
-                  <a-input type="password" placeholder="密码" v-model:value="loginForm.password">
+                  <a-input type="password" placeholder="旧密码" v-model:value="loginForm.password">
+                    <template #prefix><LockOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
+                  </a-input>
+                </a-form-item>
+                <a-form-item>
+                  <a-input type="password" placeholder="新密码" v-model:value="loginForm.password">
                     <template #prefix><LockOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
                   </a-input>
                 </a-form-item>
                 <div class="text-end">
-                  <button @click="router.push({name:'ChangePassword'})" class="text-sky-600 mb-4 hover:text-sky-500">
-                    修改密码？
+                  <button class="text-sky-600 mb-4 hover:text-sky-500">
+                    忘记密码？
                   </button>
                 </div>
                 <div class="flex items-center justify-center space-x-2">
                   <div class="text-center">
-                    <button @click="UserLogin()" class="bg-gradient-to-r from-blue-500 to-teal-500 p-2 text-white rounded-3xl">
-                      <span class="mx-10">登录</span>
+                    <!-- 修改按钮宽度 -->
+                    <button @click="router.push({name:'Login'})" class="bg-gradient-to-r from-blue-500 to-teal-500 p-2 text-white rounded-3xl">
+                      <span class="mx-10">确认修改</span>
                     </button>
                   </div>
                   <div class="text-center">
-                    <button @click="router.push({name:'Register'})" class=" border border-sky-600 p-2 text-sky-600 rounded-3xl" >
-                      <span class="mx-10" >注册</span>
+                    <!-- 修改按钮宽度 -->
+                    <button @click="router.push({name:'Login'})" class=" border border-sky-600 p-2 text-sky-600 rounded-3xl" >
+                      <span class="mx-10">取消修改</span>
                     </button>
                   </div>
                 </div>
+
               </a-form>
             </div>
           </div>
@@ -92,7 +100,7 @@ async function UserLogin() {
         await router.push({name:'Blog'});
         message.success('你好 ' + getReturnData.data.user.username)
       }
-      }
+  }
 }
 
 </script>

@@ -27,6 +27,12 @@ const router = createRouter({
                 component:() => import('@/views/authPage/Register.vue'),
             },
             {
+                //修改密码路由
+                path:'/change/password',
+                name:'ChangePassword',
+                component:() => import('@/views/authPage/ChangePassword.vue')
+            },
+            {
                 //博客页面相关路由
                 path:'/',
                 name:'Blog',

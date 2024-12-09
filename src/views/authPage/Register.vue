@@ -12,7 +12,7 @@
       >
         <div class="container p-3">
           <div class="row-auto">
-            <div class="row-span-1 mb-8 text-center font-semibold text-2xl text-gray-700">
+            <div class="row-span-1 mb-8 text-center font-semibold text-2xl text-sky-600">
               终端笔谈 - 注册
             </div>
             <div class="row-span-1">
@@ -37,26 +37,18 @@
                     <template #prefix><LockOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
                   </a-input>
                 </a-form-item>
-                <div class="text-center">
-                  <!-- 修改按钮宽度 -->
-                  <a-button :disabled="false" class="bg-sky-500 w-64" html-type="submit" type="primary" @click="UserRegister()">
-                    <div class="mx-10">立即注册</div>
-                  </a-button>
+                <div class="flex items-center justify-center space-x-2">
+                  <div class="text-center">
+                    <button @click="UserRegister()" class="bg-gradient-to-r from-blue-500 to-teal-500 p-2 text-white rounded-3xl">
+                      <span class="mx-10">注册</span>
+                    </button>
+                  </div>
+                  <div class="text-center">
+                    <button @click="router.push({name:'Login'})" class=" border border-sky-600 p-2 text-sky-600 rounded-3xl" >
+                      <span class="mx-10" >登录</span>
+                    </button>
+                  </div>
                 </div>
-
-                <!-- 添加带有中间文字的横线 -->
-                <div class="flex items-center my-4">
-                  <div class="flex-grow border-t border-gray-300"></div>
-                  <span class="px-2 text-gray-500">或者</span>
-                  <div class="flex-grow border-t border-gray-300"></div>
-                </div>
-                <div class="text-center">
-                  <!-- 修改按钮宽度 -->
-                  <a-button @click="router.push({name:'Login'})"  class="bg-sky-500 w-64" type="primary">
-                    <div class="mx-10" >登录</div>
-                  </a-button>
-                </div>
-
               </a-form>
             </div>
           </div>
