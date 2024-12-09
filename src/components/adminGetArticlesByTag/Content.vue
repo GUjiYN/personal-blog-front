@@ -106,7 +106,7 @@ const goToArticleListByTag = (item) => {
                 <a class="text-gray-700 hover:text-gray-200" href="#">标签</a>
               </div>
               <div class="mt-4 flex justify-center space-x-6">
-                <button class="bg-sky-100 p-4 flex gap-1 items-center space-x-1 text-gray-700 hover:text-white">
+                <button class="bg-sky-100 hover:bg-sky-200 p-4 flex gap-1 items-center space-x-1 text-gray-700">
                   <UserOutlined/>
                   <span>关于我的一些事?</span>
                 </button>

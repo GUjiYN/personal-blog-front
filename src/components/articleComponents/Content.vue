@@ -308,7 +308,7 @@ const goToArticleListByTag = (item) => {
                       <button
                           type="button"
                           @click="AddComment"
-                          class="rounded bg-indigo-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-600"
+                          class="rounded bg-sky-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-sky-600"
                       >
                         提交
                       </button>
@@ -387,7 +387,7 @@ const goToArticleListByTag = (item) => {
                         @click="goToPage(page)"
                         :class="[
             'block size-8 rounded border text-center leading-8',
-            page === currentPage ? 'bg-indigo-500 border-indigo-500 text-white hover:bg-indigo-600' : 'bg-white text-gray-900 border-gray-100'
+            page === currentPage ? 'bg-sky-500 border-sky-500 text-white hover:bg-sky-600' : 'bg-white text-gray-900 border-gray-100'
           ]"
                     >
                       {{ page }}
@@ -432,7 +432,7 @@ const goToArticleListByTag = (item) => {
                 <a class="text-gray-700 hover:text-gray-200" href="#">标签</a>
               </div>
               <div class="mt-4 flex justify-center space-x-6">
-                <button class="bg-sky-100 p-4 flex gap-1 items-center space-x-1 text-gray-700 hover:text-white">
+                <button class="bg-sky-100 hover:bg-sky-200 p-4 flex gap-1 items-center space-x-1 text-gray-700 ">
                   <UserOutlined/>
                   <span>关于我的一些事?</span>
                 </button>

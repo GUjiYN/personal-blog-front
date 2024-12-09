@@ -24,6 +24,14 @@ export let loginDO = {
     token: '',
 }
 
+export let changePasswordDO = {
+    baseResponse,
+    data: {
+        oldPassword: '',
+        newPassword: '',
+    }
+}
+
 export let logoutDO = {
     baseResponse,
 }

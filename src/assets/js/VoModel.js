@@ -11,6 +11,12 @@ export let loginVO = {
     password: '',
 }
 
+export let changePasswordVO = {
+    username:'',
+    oldPassword:'',
+    newPassword:'',
+}
+
 export let logoutVO = {
 
 }

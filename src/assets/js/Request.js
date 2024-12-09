@@ -43,6 +43,26 @@ const Login = (data) => {
     })
 }
 
+const ChangePassword = (data) => {
+    return axios({
+        url: api + "/auth/change/password",
+        method: "put",
+        data: data,
+        headers: {
+            'Authorization': localStorage.getItem("AuthorizationToken"),
+            'content-type': 'application/json;charset=utf-8',
+            'X-Timestamp': new Date().getTime()
+        }
+    })
+}
+
+
+/**
+ * 账号登出
+ * @param data
+ * @return {Promise<AxiosResponse<any>> | *}
+ * @constructor
+ */
 const Logout = (data) => {
     return axios({
         url: api + "/auth/logout",
@@ -279,6 +299,7 @@ const GetTagList = (data) => {
 export default {
     Register,
     Login,
+    ChangePassword,
     Logout,
     GetArticleList,
     SearchArticle,
