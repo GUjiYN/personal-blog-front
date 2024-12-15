@@ -407,26 +407,11 @@ onUnmounted(() => {
 
 
       </a-form-item>
-      <a-form-item label="图片">
-        <a-upload
-            :file-list="fileList"
-            :on-change="handleImageChange"
-            :show-upload-list="false"
-            action="/upload.do"
-            list-type="picture-card"
-        >
-          <div>
-            <PlusOutlined/>
-            <div style="margin-top: 8px">Upload</div>
-          </div>
-        </a-upload>
-      </a-form-item>
     </a-form>
     <template #footer>
       <a-button @click="closeDialogCreateArticle">取消</a-button>
       <a-button
-          class="bg-aspargus mt-4"
-          type="primary"
+          class="bg-sky-500 text-white mt-4"
           @click="CreateArticle"
       >
         创建

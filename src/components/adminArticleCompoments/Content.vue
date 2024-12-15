@@ -381,13 +381,7 @@ const goToArticleListByTag = (item) => {
                         v-model="getAddCommentVO.cdesc"
                     ></textarea>
                     <div class="flex items-center justify-end gap-2 bg-white p-3">
-                      <button
-                          type="button"
-                          @click="router.replace({name:'Login'})"
-                          class="rounded bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-300"
-                      >
-                        登录
-                      </button>
+
 
                       <button
                           type="button"
@@ -515,7 +509,7 @@ const goToArticleListByTag = (item) => {
             <div class="mb-6 text-center rounded-lg">
               <img alt="Profile Image" class="w-24 h-24 rounded-full mx-auto mb-4" src="@/assets/images/avater.jpg"/>
               <h2 class="text-xl text-gray-700 font-semibold">Petrichor</h2>
-              <p class="text-sm text-gray-700">只为在茫茫人海中有自己的小天空！</p>
+              <p class="text-sm text-gray-700">这里可以写自己的个性签名</p>
               <div class="mt-4 flex justify-center space-x-6">
                 <a class="text-gray-700 hover:text-gray-200" href="#"> 文章</a>
                 <a class="text-gray-700 hover:text-gray-200" href="#">标签</a>

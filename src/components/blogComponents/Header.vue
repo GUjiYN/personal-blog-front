@@ -294,8 +294,7 @@ const typeEffect = () => {
     <template #footer>
       <a-button @click="closeDialogSearch">取消</a-button>
       <a-button
-          class="bg-aspargus mt-4"
-          type="primary"
+          class="bg-sky-500 text-white mt-4"
           @click="DialogSearch"
       >查询</a-button>
     </template>
